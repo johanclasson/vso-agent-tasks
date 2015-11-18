@@ -1,0 +1,66 @@
+﻿{
+    "id": "3f6f98d7-4297-4785-86d7-8cceb336e5c4",
+    "name": "NugetSemverVersion",
+    "friendlyName": "Nuget Compatible SemVer Versioning",
+    "description": "Sets version attributes in AssemblyInfo.cs in a manner which is compatible with Nuget and Semantic Versioning 2.0.0.",
+    "helpMarkDown": "[More Information](https://github.com/johanclasson/vso-agent-tasks)",
+    "category": "Utility",
+    "visibility": [
+                  "Build",
+                  "Release"
+                  ],    
+    "author": "Johan Classon",
+    "version": {
+        "Major": 0,
+        "Minor": 1,
+        "Patch": 0
+    },
+    "demands": [
+        "DotNetFramework"
+    ],
+    "groups": [
+        {
+            "name":"versioning",
+            "displayName":"Prerelease Versioning",
+            "isExpanded":true
+        }
+    ],
+    "inputs": [
+        { 
+            "name": "makeReleaseVersion", 
+            "type": "boolean",
+            "label": "Make release version", 
+            "defaultValue":"true", 
+            "helpMarkDown": "If not checked, the AssemblyInformationalVersion-attribute will be like 1.2.3. If checked, it will include a prerelease token like 1.2.3-abc.",
+            "groupName":"versioning"
+        },
+        { 
+            "name": "PreReleaseName", 
+            "type": "string", 
+            "label": "Prerelease name", 
+            "defaultValue":"", 
+            "required":true,
+            "helpMarkDown": "The name of the prerelease. Will be included in the AssemblyInformationalVersion-attribute like 1.2.3-abc.",
+            "groupName":"versioning",
+            "visibleRule": "makeReleaseVersion = false"
+        },
+        { 
+            "name": "IncludeRevInPreRelease", 
+            "type": "boolean", 
+            "label": "Include build revision number", 
+            "defaultValue":"false", 
+            "required":false,
+            "helpMarkDown": "If checked, the prerelease name will include the build revision number so that the AssemblyInformationalVersion-attribute will be like 1.2.3-abc0123.",
+            "groupName":"versioning",
+            "visibleRule": "makeReleaseVersion = false"
+        }
+    ],
+    "instanceNameFormat": "Nuget Compatible SemVer Versioning of build $(Build.BuildNumber)",
+    "execution": {
+        "PowerShell": {
+            "target": "$(currentDirectory)\\SetNugetSemverVersion.ps1",
+            "argumentFormat": "",
+            "workingDirectory": "$(currentDirectory)"
+        }
+    }
+}
