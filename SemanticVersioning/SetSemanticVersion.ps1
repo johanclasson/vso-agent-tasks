@@ -2,16 +2,17 @@ Param(
   [string]$pathToSearch = $env:BUILD_SOURCESDIRECTORY,
   [string]$buildNumber = $env:BUILD_BUILDNUMBER,
   [regex]$pattern = "\d+\.\d+\.\d+\.\d+",
-  [switch]$makeReleaseVersion,
-  [string]$preReleaseName,
-  [switch]$includeRevInPreRelease
+  [string]$makeReleaseVersion = [bool]::FalseString,
+  [string]$preReleaseName = "",
+  [string]$includeRevInPreRelease = [bool]::FalseString,
+  [string]$patternSplitCharacters = "."
 )
 
 $ErrorActionPreference = "Stop"
 
-if ($makeReleaseVersion) {
+if ([bool]::Parse($makeReleaseVersion)) {
     $preReleaseName = $null
-    $includeRevInPreRelease = $false
+    $includeRevInPreRelease = [bool]::FalseString
 }
 elseif ([string]::IsNullOrEmpty($preReleaseName)) {
     Write-Host "Prerelease name is not set"
@@ -25,7 +26,7 @@ if ($buildNumber -match $pattern -ne $true) {
 }
 
 # Set version variables
-$extractedBuildNumbers = @($Matches[0].Split('.'))
+$extractedBuildNumbers = @($Matches[0].Split(([char[]]$patternSplitCharacters)))
 if ($extractedBuildNumbers.Length -ne 4) {
     Write-Host "The extracted build number $($Matches[0]) does not contain the expected 4 elements"
     exit 2
@@ -35,7 +36,7 @@ $fileVersion = [string]::Join(".",$extractedBuildNumbers)
 $informationalVersion = "$($extractedBuildNumbers[0]).$($extractedBuildNumbers[1]).$($extractedBuildNumbers[2])"
 if ([string]::IsNullOrEmpty($preReleaseName) -ne $true) {
     $informationalVersion += "-$preReleaseName"
-    if ($includeRevInPreRelease) {
+    if ([bool]::Parse($includeRevInPreRelease)) {
         $informationalVersion += ([int]$extractedBuildNumbers[3]).ToString("0000")
     }
 }

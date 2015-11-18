@@ -1,8 +1,8 @@
-﻿{
+{
     "id": "b8df3d76-4ee4-45a9-a659-6ead63b536b4",
-    "name": "NugetSemverVersion",
-    "friendlyName": "Nuget Compatible SemVer Versioning",
-    "description": "Sets version attributes in AssemblyInfo.cs in a manner which is compatible with Nuget and Semantic Versioning 2.0.0.",
+    "name": "SemanticVersioning2",
+    "friendlyName": "Semantic Versioning 2.0.0",
+    "description": "Sets version attributes in AssemblyInfo.cs in a manner which is compatible with NuGet and Semantic Versioning 2.0.0.",
     "helpMarkDown": "[More Information](https://github.com/johanclasson/vso-agent-tasks)",
     "category": "Utility",
     "visibility": [
@@ -13,19 +13,19 @@
     "version": {
         "Major": 0,
         "Minor": 1,
-        "Patch": 3
+        "Patch": 9
     },
     "demands": [
         "DotNetFramework"
     ],
+    "groups": [
+        {
+            "name": "advanced",
+            "displayName": "Advanced",
+            "isExpanded": false
+        }
+    ],
     "inputs": [
-        { 
-            "name": "pattern", 
-            "type": "string",
-            "label": "Build number pattern", 
-            "defaultValue": "\\d+\\.\\d+\\.\\d+\\.\\d+", 
-            "helpMarkDown": "The pattern to extracte the four version numbers from the build number. This must match exactly four entries separated by periods."
-        },
         { 
             "name": "makeReleaseVersion", 
             "type": "boolean",
@@ -38,7 +38,7 @@
             "type": "string", 
             "label": "Prerelease name", 
             "defaultValue": "", 
-            "required":true,
+            "required": true,
             "helpMarkDown": "The name of the prerelease. Will be included in the AssemblyInformationalVersion-attribute like 1.2.3-abc.",
             "visibleRule": "makeReleaseVersion = false"
         },
@@ -47,15 +47,33 @@
             "type": "boolean", 
             "label": "Include build revision number", 
             "defaultValue": "false", 
-            "required":false,
+            "required": false,
             "helpMarkDown": "If checked, the prerelease name will include the build revision number so that the AssemblyInformationalVersion-attribute will be like 1.2.3-abc0123.",
             "visibleRule": "makeReleaseVersion = false"
+        },
+        { 
+            "name": "pattern", 
+            "type": "string",
+            "label": "Build number pattern", 
+            "defaultValue": "\\d+\\.\\d+\\.\\d+\\.\\d+",
+            "required": true,
+            "helpMarkDown": "The pattern to extract the four version numbers from the build number. This must match exactly four entries separated by the split characters.",
+            "groupName": "advanced"
+        },
+        { 
+            "name": "patternSplitCharacters", 
+            "type": "string",
+            "label": "Split characters", 
+            "defaultValue": ".",
+            "required": true,
+            "helpMarkDown": "The characters to split up the matched string from the build number. Simply just list all required characters. No comma separation needed.",
+            "groupName": "advanced"
         }
     ],
-    "instanceNameFormat": "Nuget Compatible SemVer Versioning of build $(Build.BuildNumber)",
+    "instanceNameFormat": "Compatible with NuGet package versioning",
     "execution": {
         "PowerShell": {
-            "target": "$(currentDirectory)\\SetNugetSemverVersion.ps1",
+            "target": "$(currentDirectory)\\SetSemanticVersion.ps1",
             "argumentFormat": "",
             "workingDirectory": "$(currentDirectory)"
         }
