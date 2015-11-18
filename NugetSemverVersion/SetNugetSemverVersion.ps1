@@ -1,6 +1,7 @@
 Param(
   [string]$pathToSearch = $env:BUILD_SOURCESDIRECTORY,
   [string]$buildNumber = $env:BUILD_BUILDNUMBER,
+  [regex]$pattern = "\d+\.\d+\.\d+\.\d+",
   [switch]$makeReleaseVersion,
   [string]$preReleaseName,
   [switch]$includeRevInPreRelease
@@ -18,14 +19,17 @@ elseif ([string]::IsNullOrEmpty($preReleaseName)) {
 }
 
 $searchFilter = "AssemblyInfo.*"
-$pattern = "\d+\.\d+\.\d+\.\d+"
 if ($buildNumber -match $pattern -ne $true) {
     Write-Host "Could not extract a version from [$buildNumber] using pattern [$pattern]"
-    exit 1
+    exit 2
 }
 
 # Set version variables
-$extractedBuildNumbers = $Matches[0].Split('.')
+$extractedBuildNumbers = @($Matches[0].Split('.'))
+if ($extractedBuildNumbers.Length -ne 4) {
+    Write-Host "The extracted build number $($Matches[0]) does not contain the expected 4 elements"
+    exit 2
+}
 $version = "$($extractedBuildNumbers[0]).$($extractedBuildNumbers[1])"
 $fileVersion = [string]::Join(".",$extractedBuildNumbers)
 $informationalVersion = "$($extractedBuildNumbers[0]).$($extractedBuildNumbers[1]).$($extractedBuildNumbers[2])"
