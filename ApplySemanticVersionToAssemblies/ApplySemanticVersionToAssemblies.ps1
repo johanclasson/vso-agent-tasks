@@ -5,7 +5,8 @@ Param(
   [string]$makeReleaseVersion = [bool]::FalseString,
   [string]$preReleaseName = "",
   [string]$includeRevInPreRelease = [bool]::FalseString,
-  [string]$patternSplitCharacters = "."
+  [string]$patternSplitCharacters = ".",
+  [string]$versionNumbersInAssemblyVersion = "2"
 )
 
 $ErrorActionPreference = "Stop"
@@ -25,22 +26,7 @@ if ($buildNumber -match $pattern -ne $true) {
     exit 2
 }
 
-# Set version variables
-$extractedBuildNumbers = @($Matches[0].Split(([char[]]$patternSplitCharacters)))
-if ($extractedBuildNumbers.Length -ne 4) {
-    Write-Host "The extracted build number $($Matches[0]) does not contain the expected 4 elements"
-    exit 2
-}
-$version = "$($extractedBuildNumbers[0]).$($extractedBuildNumbers[1])"
-$fileVersion = [string]::Join(".",$extractedBuildNumbers)
-$informationalVersion = "$($extractedBuildNumbers[0]).$($extractedBuildNumbers[1]).$($extractedBuildNumbers[2])"
-if ([string]::IsNullOrEmpty($preReleaseName) -ne $true) {
-    $informationalVersion += "-$preReleaseName"
-    if ([bool]::Parse($includeRevInPreRelease)) {
-        $informationalVersion += ([int]$extractedBuildNumbers[3]).ToString("0000")
-    }
-}
-Write-Host "Using version $version, file version $fileVersion and informational version $informationalVersion"
+# Declare functions
 
 function Replace-Version($content, $version, $attribute) {
     $versionAttribute = "[assembly: $attribute(""$version"")]"
@@ -60,6 +46,27 @@ function Replace-Version($content, $version, $attribute) {
     }
     return $content
 }
+
+function Get-VersionString($numberOfVersions, $extractedBuildNumbers) {
+    return [string]::Join(".",($extractedBuildNumbers | select -First ([int]::Parse($numberOfVersions))))
+}
+
+# Set version variables
+$extractedBuildNumbers = @($Matches[0].Split(([char[]]$patternSplitCharacters)))
+if ($extractedBuildNumbers.Length -ne 4) {
+    Write-Host "The extracted build number $($Matches[0]) does not contain the expected 4 elements"
+    exit 2
+}
+$version = Get-VersionString -numberOfVersions $versionNumbersInAssemblyVersion -extractedBuildNumbers $extractedBuildNumbers
+$fileVersion = Get-VersionString -numberOfVersions "4" -extractedBuildNumbers $extractedBuildNumbers
+$informationalVersion = "$($extractedBuildNumbers[0]).$($extractedBuildNumbers[1]).$($extractedBuildNumbers[2])"
+if ([string]::IsNullOrEmpty($preReleaseName) -ne $true) {
+    $informationalVersion += "-$preReleaseName"
+    if ([bool]::Parse($includeRevInPreRelease)) {
+        $informationalVersion += ([int]$extractedBuildNumbers[3]).ToString("0000")
+    }
+}
+Write-Host "Using version $version, file version $fileVersion and informational version $informationalVersion"
 
 gci -Path $pathToSearch -Filter $searchFilter -Recurse | %{
     Write-Host "  -> Changing $($_.FullName)"

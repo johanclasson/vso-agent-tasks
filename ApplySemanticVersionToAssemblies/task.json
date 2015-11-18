@@ -1,19 +1,18 @@
 {
     "id": "b8df3d76-4ee4-45a9-a659-6ead63b536b4",
-    "name": "SemanticVersioning2",
-    "friendlyName": "Semantic Versioning 2.0.0",
+    "name": "ApplySemanticVersionToAssemblies",
+    "friendlyName": "Apply Semantic Version to Assemblies",
     "description": "Sets version attributes in AssemblyInfo.cs in a manner which is compatible with NuGet and Semantic Versioning 2.0.0.",
     "helpMarkDown": "[More Information](https://github.com/johanclasson/vso-agent-tasks)",
     "category": "Utility",
     "visibility": [
-                  "Build",
-                  "Release"
+                  "Build"
                   ],    
     "author": "Johan Classon",
     "version": {
         "Major": 0,
         "Minor": 1,
-        "Patch": 9
+        "Patch": 10
     },
     "demands": [
         "DotNetFramework"
@@ -68,12 +67,27 @@
             "required": true,
             "helpMarkDown": "The characters to split up the matched string from the build number. Simply just list all required characters. No comma separation needed.",
             "groupName": "advanced"
+        },
+        { 
+            "name": "versionNumbersInAssemblyVersion", 
+            "type": "pickList",
+            "options": {
+                "1": "1",
+                "2": "2",
+                "3": "3",
+                "4": "4"
+            },
+            "label": "Version Numbers in AssemblyVersion-attribute", 
+            "defaultValue": "2",
+            "required": true,
+            "helpMarkDown": "If 2 version numbers are used, the AssemblyVersion would be set like 1.2. If 3 are used, it would be set like 1.2.3. Etc...",
+            "groupName": "advanced"
         }
     ],
-    "instanceNameFormat": "Compatible with NuGet package versioning",
+    "instanceNameFormat": "Apply Semantic Version to Assemblies",
     "execution": {
         "PowerShell": {
-            "target": "$(currentDirectory)\\SetSemanticVersion.ps1",
+            "target": "$(currentDirectory)\\ApplySemanticVersionToAssemblies.ps1",
             "argumentFormat": "",
             "workingDirectory": "$(currentDirectory)"
         }
