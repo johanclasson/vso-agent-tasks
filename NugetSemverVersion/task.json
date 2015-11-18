@@ -1,5 +1,5 @@
 ﻿{
-    "id": "3f6f98d7-4297-4785-86d7-8cceb336e5c4",
+    "id": "b8df3d76-4ee4-45a9-a659-6ead63b536b4",
     "name": "NugetSemverVersion",
     "friendlyName": "Nuget Compatible SemVer Versioning",
     "description": "Sets version attributes in AssemblyInfo.cs in a manner which is compatible with Nuget and Semantic Versioning 2.0.0.",
@@ -13,17 +13,10 @@
     "version": {
         "Major": 0,
         "Minor": 1,
-        "Patch": 0
+        "Patch": 2
     },
     "demands": [
         "DotNetFramework"
-    ],
-    "groups": [
-        {
-            "name":"versioning",
-            "displayName":"Prerelease Versioning",
-            "isExpanded":true
-        }
     ],
     "inputs": [
         { 
@@ -31,8 +24,7 @@
             "type": "boolean",
             "label": "Make release version", 
             "defaultValue":"true", 
-            "helpMarkDown": "If not checked, the AssemblyInformationalVersion-attribute will be like 1.2.3. If checked, it will include a prerelease token like 1.2.3-abc.",
-            "groupName":"versioning"
+            "helpMarkDown": "If not checked, the AssemblyInformationalVersion-attribute will be like 1.2.3. If checked, it will include a prerelease token like 1.2.3-abc."
         },
         { 
             "name": "PreReleaseName", 
@@ -41,7 +33,6 @@
             "defaultValue":"", 
             "required":true,
             "helpMarkDown": "The name of the prerelease. Will be included in the AssemblyInformationalVersion-attribute like 1.2.3-abc.",
-            "groupName":"versioning",
             "visibleRule": "makeReleaseVersion = false"
         },
         { 
@@ -51,7 +42,6 @@
             "defaultValue":"false", 
             "required":false,
             "helpMarkDown": "If checked, the prerelease name will include the build revision number so that the AssemblyInformationalVersion-attribute will be like 1.2.3-abc0123.",
-            "groupName":"versioning",
             "visibleRule": "makeReleaseVersion = false"
         }
     ],
