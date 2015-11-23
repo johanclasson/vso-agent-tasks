@@ -1,0 +1,76 @@
+{
+    "id": "c4bd96cb-358c-49ce-a3c1-e868ff8f7f10",
+    "name": "InvokePester",
+    "friendlyName": "Invoke-Pester",
+    "description": "Downloads Pester and invokes a test run.",
+    "helpMarkDown": "[More Information](https://github.com/johanclasson/vso-agent-tasks)",
+    "category": "Test",
+    "visibility": [
+                  "Build",
+                  "Release"
+                  ],    
+    "author": "Johan Classon",
+    "version": {
+        "Major": 0,
+        "Minor": 1,
+        "Patch": 1
+    },
+    "demands": [
+        "DotNetFramework"
+    ],
+    "inputs": [
+        { 
+            "name": "SourceDir", 
+            "type": "filePath",
+            "label": "Source Directory", 
+            "required": false,
+            "helpMarkDown": "The path where Invoke-Pester begins to search for test files. The default is the sources directory."
+        },
+        { 
+            "name": "ForceStrictMode", 
+            "type": "boolean", 
+            "label": "Force Strict Mode", 
+            "defaultValue": "false", 
+            "required": false,
+            "helpMarkDown": "Sets the PowerShell strict mode to latest before running the tests."
+        },
+        { 
+            "name": "TestName", 
+            "type": "string",
+            "label": "Test Name", 
+            "defaultValue": "", 
+            "required": false,
+            "helpMarkDown": "Informs Invoke-Pester to only run Describe blocks that match this name. This value may contain wildcards."
+        },
+        { 
+            "name": "Strict", 
+            "type": "boolean", 
+            "label": "Strict", 
+            "defaultValue": "false", 
+            "required": false,
+            "helpMarkDown": "Reduces the possible outcome of a test to Passed or Failed only. Any Pending or Skipped test will translate to Failed."
+        },
+        { 
+            "name": "Tags", 
+            "type": "string",
+            "label": "Tags", 
+            "required": false,
+            "helpMarkDown": "Another way of filtering the Describe blocks that should be executed, this time based on the values that are passed to the Tag parameter of the Describe statement. This value may not contain wildcards. Multiple tags should be entered separated with space."
+        },
+        { 
+            "name": "ExcludeTags", 
+            "type": "string",
+            "label": "Exclude Tags", 
+            "required": false,
+            "helpMarkDown": "Informs Invoke-Pester to not run blocks tagged with the tags specified. Multiple tags should be entered separated with space"
+        }
+    ],
+    "instanceNameFormat": "Source Directory: $(SourceDir)",
+    "execution": {
+        "PowerShell": {
+            "target": "$(currentDirectory)\\Invoke-Pester.ps1",
+            "argumentFormat": "",
+            "workingDirectory": "$(currentDirectory)"
+        }
+    }
+}
