@@ -29,6 +29,7 @@ If you make a change to a task that you have previously uploaded, you have to bu
 
 * [Apply Semantic Versioning to Assemblies](#apply-semantic-versioning-to-assemblies)
 * [Invoke-Pester](#invoke-pester)
+* [Nuget Publisher With Credentials](#nuget-publisher-with-credentials)
 
 ## Apply Semantic Versioning to Assemblies
 
@@ -67,3 +68,7 @@ You can change the *Build Number Pattern* that is used to extract the version nu
 ## Invoke-Pester
 
 Downloads the latest version of Pester from https://github.com/pester/Pester/archive/master.zip and calls Invoke-Pester. The test output is written to "Soruce Directory"\TEST-pester.xml in NUnit-format so that the test results can be published.
+
+## Nuget Publisher With Credentials
+
+A demonstration of how to push packages to a NuGet feed that requires authentication. This is made by temporarily adding the credentials to a local Nuget package source before making the push command.
