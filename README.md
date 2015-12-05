@@ -30,6 +30,7 @@ If you make a change to a task that you have previously uploaded, you have to bu
 * [Apply Semantic Versioning to Assemblies](#apply-semantic-versioning-to-assemblies)
 * [Invoke-Pester](#invoke-pester)
 * [Nuget Publisher With Credentials](#nuget-publisher-with-credentials)
+* [Invoke Rest Method](#invoke-rest-method)
 
 ## Apply Semantic Versioning to Assemblies
 
@@ -72,3 +73,9 @@ Downloads the latest version of Pester from https://github.com/pester/Pester/arc
 ## Nuget Publisher With Credentials
 
 A demonstration of how to push packages to a NuGet feed that requires authentication. This is made by temporarily adding the credentials to a local Nuget package source before making the push command.
+
+## Invoke Rest Method
+
+The url is polled once every 10 seconds until a responce is given. The task fails after a configurable timeout period if no responce is given.
+
+The task can handle that the url is not registred when the task is started.

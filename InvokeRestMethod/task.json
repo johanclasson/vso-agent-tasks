@@ -1,0 +1,80 @@
+{
+    "id": "ff9b8074-702c-48ec-adc3-75452e86622f",
+    "name": "InvokeRestMethod",
+    "friendlyName": "Invoke Rest Method",
+    "description": "Tries to invoke a rest method and waits for a responce. Can handle that the url is not registred when the task is started.",
+    "helpMarkDown": "[More Information](https://github.com/johanclasson/vso-agent-tasks)",
+    "category": "Utility",
+    "visibility": [
+                  "Build",
+                  "Release"
+                  ],    
+    "author": "Johan Classon",
+    "version": {
+        "Major": 0,
+        "Minor": 1,
+        "Patch": 9
+    },
+    "demands": [
+        "DotNetFramework"
+    ],
+    "inputs": [
+        { 
+            "name": "Url", 
+            "type": "string",
+            "label": "Service Url", 
+            "required": true,
+            "helpMarkDown": "The url of the service to send the request to."
+        },
+        { 
+            "name": "Method", 
+            "type": "pickList",
+            "options": {
+                "Delete": "Delete",
+                "Get": "Get",
+                "Head": "Head",
+                "Merge": "Merge",
+                "Options": "Options",
+                "Patch": "Patch",
+                "Post": "Post",
+                "Put": "Put",
+                "Trace": "Trace"
+            },
+            "label": "Method", 
+            "defaultValue": "Post", 
+            "required": true,
+            "helpMarkDown": "The method used for the web request."
+        },
+        { 
+            "name": "ContentType", 
+            "type": "string",
+            "label": "Content Type", 
+            "defaultValue": "application/json", 
+            "required": false,
+            "helpMarkDown": "The content type of the web request."
+        },
+        { 
+            "name": "Body", 
+            "type": "multiLine",
+            "label": "Body", 
+            "required": false,
+            "helpMarkDown": "Specifies the body of the request."
+        },
+        { 
+            "name": "Timeout", 
+            "type": "string",
+            "label": "Timeout", 
+            "defaultValue": "00:20:00", 
+            "required": true,
+            "helpMarkDown": "The time the task waits for a responce before failing. The input needs to be possible to parse to a TimeSpan."
+        }
+    ],
+    "instanceNameFormat": "Invoke Rest Method: $(Url)",
+    "execution": {
+        "PowerShell": {
+            "target": "$(currentDirectory)\\Invoke-RestMethod.ps1",
+            "argumentFormat": "",
+            "workingDirectory": "$(currentDirectory)"
+        }
+    }
+}
