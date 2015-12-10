@@ -1,6 +1,8 @@
-# Tasks for VSO-agents
+# Tasks for VSTS-agents
 
-Invoking PowerShell scripts is often an appealing option for this kind of customization. Using PowerShell scripts is especially a good idea when you are making changes that are unique for your solution. Just write your script and invoke it!
+(VSTS was formerly known as VSO)
+
+Invoking PowerShell scripts is often an appealing option for customization of a build workflow. Using PowerShell scripts is especially a good idea when you are making changes that are unique for your solution. Just write your script and invoke it!
 
 Working with builds that directly invokes PowerShell scripts has its limitations:
 
@@ -31,6 +33,7 @@ If you make a change to a task that you have previously uploaded, you have to bu
 * [Invoke-Pester](#invoke-pester)
 * [Nuget Publisher With Credentials](#nuget-publisher-with-credentials)
 * [Invoke Rest Method](#invoke-rest-method)
+* [Inline PowerShell](#pnline-powerShell)
 
 ## Apply Semantic Versioning to Assemblies
 
@@ -79,3 +82,7 @@ A demonstration of how to push packages to a NuGet feed that requires authentica
 The url is polled once every 10 seconds until a responce is given. The task fails after a configurable timeout period if no responce is given.
 
 The task can handle that the url is not registred when the task is started.
+
+## Inline PowerShell
+
+Runs a PowerShell script that is entered in task instead of running a script file like the stadard PowerShell task does. This overcomes the trouble of having to check in script files in your repository to have them available at build time. But, it also introduce some difficulties. For example it is not a good practice to have redundant scripts around... 

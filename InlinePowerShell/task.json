@@ -1,0 +1,64 @@
+﻿{
+    "id": "77a137ba-40ed-4bf0-ba28-b40525dbe4d2",
+    "name": "InlinePowerShell",
+    "friendlyName": "Inline PowerShell",
+    "description": "Run an inline PowerShell script",
+    "helpMarkDown": "[More Information](https://github.com/johanclasson/vso-agent-tasks)",
+    "category": "Utility",
+    "visibility": [
+                  "Build",
+                  "Release"
+                  ],    
+    "author": "Johan Classon",
+    "version": {
+        "Major": 0,
+        "Minor": 1,
+        "Patch": 6
+    },
+    "demands": [
+        "DotNetFramework"
+    ],
+    "groups": [
+        {
+            "name":"advanced",
+            "displayName":"Advanced",
+            "isExpanded":false
+        }
+    ],
+    "inputs": [
+        { 
+            "name": "Script", 
+            "type": "multiLine", 
+            "label": "Script", 
+            "defaultValue":"", 
+            "required":true,
+            "helpMarkDown": "The script to execute" 
+        },
+        { 
+            "name": "arguments", 
+            "type": "string", 
+            "label": "Arguments", 
+            "defaultValue":"", 
+            "required":false,
+            "helpMarkDown": "Arguments passed to the PowerShell script.  Either ordinal parameters or named parameters", 
+            "groupName":"advanced"
+        },
+        { 
+            "name": "workingFolder", 
+            "type": "filePath", 
+            "label": "Working folder", 
+            "defaultValue":"", 
+            "required":false,
+            "helpMarkDown": "Current working directory when script is run.  Defaults to the folder where the script is located.",
+            "groupName":"advanced"
+        }
+    ],
+    "instanceNameFormat": "Inline PowerShell",
+    "execution": {
+        "PowerShell": {
+            "target": "$(currentDirectory)\\InlinePowerShell.ps1",
+            "argumentFormat": "",
+            "workingDirectory": "$(workingFolder)"
+        }
+    }
+}
