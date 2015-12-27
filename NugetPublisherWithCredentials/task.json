@@ -1,7 +1,7 @@
 {
     "id": "6f8f12a7-0326-455f-ad0d-066434f3f34a",
     "name": "NugetPublisherWithCredentials",
-    "friendlyName": "Nuget Publisher With Credentials",
+    "friendlyName": "NuGet Publisher With Credentials",
     "description": "Push packages to a NuGet feed which require authentication.",
     "helpMarkDown": "[More Information](https://github.com/johanclasson/vso-agent-tasks)",
     "category": "Package",
@@ -12,7 +12,7 @@
     "version": {
         "Major": 0,
         "Minor": 1,
-        "Patch": 3
+        "Patch": 4
     },
     "demands": [
         "DotNetFramework"
@@ -22,34 +22,39 @@
             "name": "RootDir", 
             "type": "filePath",
             "label": "RootDir", 
-            "required": true
+            "required": true,
+            "helpMarkDown": "The folder where .nupkg-files are searched for recursively."
         },
         { 
             "name": "NuGetSource", 
             "type": "string",
             "label": "NuGetSource", 
-            "required": true
+            "required": true,
+            "helpMarkDown": "The URI to the NuGet repository."
         },
         { 
             "name": "NuGetSourceName", 
             "type": "string",
             "label": "NuGetSourceName", 
-            "required": true
+            "required": true,
+            "helpMarkDown": "A key where the task temporarily saves the credentials to the NuGet repository."
         },
         { 
             "name": "Username", 
             "type": "string",
             "label": "Username", 
-            "required": true
+            "required": true,
+            "helpMarkDown": "The username for authentication to the NuGet repository."
         },
         { 
             "name": "Password", 
             "type": "string",
             "label": "Password", 
-            "required": true
+            "required": true,
+            "helpMarkDown": "The password for authentication to the NuGet repository."
         }
     ],
-    "instanceNameFormat": "Nuget Publisher With Credentials: $(RootDir)",
+    "instanceNameFormat": "NuGet Publisher With Credentials: $(RootDir)",
     "execution": {
         "PowerShell": {
             "target": "$(currentDirectory)\\NugetPublisherWithCredentials.ps1",
