@@ -34,6 +34,7 @@ If you make a change to a task that you have previously uploaded, you have to bu
 * [Nuget Publisher With Credentials](#nuget-publisher-with-credentials)
 * [Invoke Rest Method](#invoke-rest-method)
 * [Inline PowerShell](#pnline-powerShell)
+* [Update Database with DbUp](#update-database-with-dbup)
 
 ## Apply Semantic Versioning to Assemblies
 
@@ -86,3 +87,7 @@ The task can handle that the url is not registred when the task is started.
 ## Inline PowerShell
 
 Runs a PowerShell script that is entered in task instead of running a script file like the stadard PowerShell task does. This overcomes the trouble of having to check in script files in your repository to have them available at build time. But, it also introduce some difficulties. For example it is not a good practice to have redundant scripts around... 
+
+## Update Database with DbUp
+
+Runs a set of SQL scripts in a folder with help of [DbUp](https://dbup.github.io/). Scripts to be run can be filtered by name. It is optional whether to log run SQL scripts to a version history table or not. Scripts which are not logged are run every time a database is updated.
