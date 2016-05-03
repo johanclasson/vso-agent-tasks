@@ -52,7 +52,7 @@ As you well understand, this task must be placed before the build task to make a
 
 ### Practical Use
 
-The informational version format 1.2.3-abc0004, which is compatible with NuGet, can be used to represent prerelease packages from your nightly builds. For example 2.1.3-build0421 could be the semantic version for 421st build targeting the fourth bugfix of the second API update of the 2.0 release.
+The informational version format 1.2.3-abc0004, which is compatible with NuGet, can be used to represent prerelease packages from your nightly builds. For example 2.1.3-build0421 could be the semantic version for 421st build targeting the third bugfix of the second API update of the 2.0 release.
 
 When packing a project package and to have NuGet use the informational version number, just set the version tag to `<version>$version$</version>` in the nuspec-file and you are good to go. 
 
@@ -72,7 +72,7 @@ You can change the *Build Number Pattern* that is used to extract the version nu
 
 ## Invoke-Pester
 
-Downloads the latest version of Pester from https://github.com/pester/Pester/archive/master.zip and calls Invoke-Pester. The test output is written to "Soruce Directory"\TEST-pester.xml in NUnit-format so that the test results can be published.
+Downloads the latest version of Pester from https://github.com/pester/Pester/archive/master.zip and calls Invoke-Pester. The test output is written to "Source Directory"\TEST-pester.xml in NUnit-format so that the test results can be published.
 
 ## Nuget Publisher With Credentials
 
