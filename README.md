@@ -36,6 +36,7 @@ If you make a change to a task that you have previously uploaded, you have to bu
 * [Inline PowerShell](#pnline-powerShell)
 * [Update Database with DbUp](#update-database-with-dbup)
 * [RoboCopy](#robocopy)
+* [XDT Transformation](#xdt-transformation)
 
 ## Apply Semantic Versioning to Assemblies
 
@@ -96,3 +97,9 @@ Runs a set of SQL scripts in a folder with help of [DbUp](https://dbup.github.io
 ## RoboCopy
 
 Copies files with RoboCopy with the arguments /MIR /R:5 /W:30.
+
+## XDT Transformation
+
+Runs XDT transformations on any XML files with the excellent [Config Transformation Tool](https://ctt.codeplex.com/).
+
+Transformation files matching `*.{Configuration}.*` are searched for in the root folder. Transformation files for all configurations are deleted after the transformation has been applied.

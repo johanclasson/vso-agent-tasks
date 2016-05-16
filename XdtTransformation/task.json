@@ -1,0 +1,45 @@
+﻿{
+    "id": "6588369e-9f11-4327-95d3-96d716e59fff",
+    "name": "XdtTransformation",
+    "friendlyName": "XDT Transformation",
+    "description": "Runs XDT transformations on any XML files.",
+    "helpMarkDown": "[More Information](https://github.com/johanclasson/vso-agent-tasks), [Config Transformation Tool](https://ctt.codeplex.com/)",
+    "category": "Utility",
+    "visibility": [
+                  "Build",
+                  "Release"
+                  ],    
+    "author": "Johan Classon",
+    "version": {
+        "Major": 0,
+        "Minor": 1,
+        "Patch": 5
+    },
+    "demands": [
+        "DotNetFramework"
+    ],
+    "inputs": [
+        { 
+            "name": "Root", 
+            "type": "filePath", 
+            "label": "Root Folder", 
+            "defaultValue":"", 
+            "required":false
+        },
+        { 
+            "name": "Configuration", 
+            "type": "string", 
+            "label": "Configuration", 
+            "defaultValue":"$(BuildConfiguration)", 
+            "required":true
+        }
+    ],
+    "instanceNameFormat": "XDT Transform $(Configuration)-files in $(Root)",
+    "execution": {
+        "PowerShell": {
+            "target": "$(currentDirectory)\\XdtTransformation.ps1",
+            "argumentFormat": "",
+            "workingDirectory": "$(currentDirectory)"
+        }
+    }
+}
