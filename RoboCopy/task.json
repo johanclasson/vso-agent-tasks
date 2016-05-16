@@ -1,0 +1,45 @@
+﻿{
+    "id": "ac507439-5254-4483-b5da-8a25dbea9875",
+    "name": "RoboCopy",
+    "friendlyName": "RoboCopy",
+    "description": "Copy files with RoboCopy",
+    "helpMarkDown": "[More Information](https://github.com/johanclasson/vso-agent-tasks)",
+    "category": "Utility",
+    "visibility": [
+                  "Build",
+                  "Release"
+                  ],    
+    "author": "Johan Classon",
+    "version": {
+        "Major": 0,
+        "Minor": 1,
+        "Patch": 2
+    },
+    "demands": [
+        "DotNetFramework"
+    ],
+    "inputs": [
+        { 
+            "name": "source", 
+            "type": "filePath", 
+            "label": "Source", 
+            "defaultValue":"", 
+            "required":true
+        },
+        { 
+            "name": "destination", 
+            "type": "string", 
+            "label": "Destination", 
+            "defaultValue":"", 
+            "required":true
+        }
+    ],
+    "instanceNameFormat": "Copy files from $(source)",
+    "execution": {
+        "PowerShell": {
+            "target": "$(currentDirectory)\\RoboCopy.ps1",
+            "argumentFormat": "",
+            "workingDirectory": "$(currentDirectory)"
+        }
+    }
+}

@@ -35,6 +35,7 @@ If you make a change to a task that you have previously uploaded, you have to bu
 * [Invoke Rest Method](#invoke-rest-method)
 * [Inline PowerShell](#pnline-powerShell)
 * [Update Database with DbUp](#update-database-with-dbup)
+* [RoboCopy](#robocopy)
 
 ## Apply Semantic Versioning to Assemblies
 
@@ -91,3 +92,7 @@ Runs a PowerShell script that is entered in task instead of running a script fil
 ## Update Database with DbUp
 
 Runs a set of SQL scripts in a folder with help of [DbUp](https://dbup.github.io/). Scripts to be run can be filtered by name. It is optional whether to log run SQL scripts to a version history table or not. Scripts which are not logged are run every time a database is updated.
+
+## RoboCopy
+
+Copies files with RoboCopy with the arguments /MIR /R:5 /W:30.
