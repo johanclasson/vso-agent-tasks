@@ -1,0 +1,55 @@
+{
+    "id": "517e827f-ced6-4667-bcd3-bac484adf06d",
+    "name": "GetArmDeploymentOutputs",
+    "friendlyName": "Get ARM Deployment Outputs",
+    "description": "writes the outputs from the last Azure Resource Group Deployment to VSTS variables",
+    "helpMarkDown": "[More Information](https://github.com/johanclasson/vso-agent-tasks)",
+    "category": "Deploy",
+    "visibility": [
+        "Build",
+        "Release"
+    ],
+    "author": "Johan Classon",
+    "version": {
+        "Major": 0,
+        "Minor": 1,
+        "Patch": 10
+    },
+    "demands": [
+        "azureps"
+    ],
+    "minimumAgentVersion": "1.103.0",
+        "inputs": [
+        {
+            "name": "ConnectedServiceName",
+            "type": "connectedService:AzureRM",
+            "label": "Azure RM Subscription",
+            "defaultValue": "",
+            "required": true,
+            "helpMarkDown": "Select the Azure Resource Manager subscription for the deployment."
+        },
+        {
+            "name": "ResourceGroupName",
+            "type": "pickList",
+            "label": "Resource Group",
+            "required": true,
+            "helpMarkDown": "Provide the name of the resource group.",
+            "properties": {
+                "EditableOptions": "True"
+            }
+        }
+    ],
+    "dataSourceBindings": [
+        {
+            "target": "ResourceGroupName",
+            "endpointId": "$(ConnectedServiceName)",
+            "dataSourceName": "AzureResourceGroups"
+        }
+    ],
+    "instanceNameFormat": "Get Azure Resource Group Deployment Outputs from $(ResourceGroupName)",
+    "execution": {
+        "PowerShell3": {
+            "target": "GetArmDeploymentOutputs.ps1"
+        }
+    }
+}

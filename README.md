@@ -37,6 +37,7 @@ If you make a change to a task that you have previously uploaded, you have to bu
 * [Update Database with DbUp](#update-database-with-dbup)
 * [RoboCopy](#robocopy)
 * [XDT Transformation](#xdt-transformation)
+* [Get ARM Deployment Outputs](#get-arm-deployment-uutputs)
 
 ## Apply Semantic Versioning to Assemblies
 
@@ -103,3 +104,21 @@ Copies files with RoboCopy with the arguments /MIR /R:5 /W:30.
 Runs XDT transformations on any XML files with the excellent [Config Transformation Tool](https://ctt.codeplex.com/).
 
 Transformation files matching `*.{Configuration}.*` are searched for in the root folder. Transformation files for all configurations are deleted after the transformation has been applied.
+
+## Get ARM Deployment Outputs
+
+Have you ever wanted to use ARM 'outputs' values in another release task, and realized that the included VSTS task [Azure Resource Group Deployment](https://github.com/Microsoft/vsts-tasks/tree/master/Tasks/DeployAzureResourceGroup) does not export them? This task connects to a resource group and creates variables for all of its latest deployment outputs.
+
+For example, if your template.json defines an output:
+
+```
+"outputs": {
+  "myVariable": {
+    "type": "string",
+    "value": "[variables('someVariableName')]"
+  }
+}
+```
+You can use it in later tasks by referring to $(arm.myVariable).
+
+Just make sure that you do not make deployments to the same resource group from multiple builds!
