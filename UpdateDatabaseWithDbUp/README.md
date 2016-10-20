@@ -1,0 +1,50 @@
+# Update Database With DbUp
+
+If you usually do migrations by comparing the schema of two databases, now is an opportunity for you to do something better.
+
+Besides schema and security, a database also consists of data, and data is troublesome. Large tables take both time and resources to alter. A schema compare tool cannot always generate resource efficient migrations, nor take domain specific decisions like for example where the data in a dropped column should go instead.
+
+Therefore, you will probably have to write at least some of your migrations yourself. If you think about it, the simple scenarios that a tool could generate migration scripts for is not that hard to write manually. Then why not make all migration scripts yourself?
+
+## What is DbUp?
+
+> *DbUp is a .NET library that helps you to deploy changes to SQL Server databases. It tracks which SQL scripts have been run already, and runs the change scripts that are needed to get your database up to date.*
+
+Read more about DbUp in the [DbUp Documentation](http://dbup.readthedocs.io)
+
+### Disclaimer
+
+I am not the author of DbUp, but a mere user of that awesome library.
+
+## How to Get Started
+
+You will find the *Update Database with DbUp*-build and release task under the *deploy* category.
+
+<img src="https://github.com/johanclasson/vso-agent-tasks/raw/master/UpdateDatabaseWithDbUp/example.png" alt="Update Database with DbUp User Interface" width="500" height="351">
+
+### Parameters
+
+| Name | Description |
+|------|-------------|
+| Connection String | The connection string used to connect to the database. |
+| Script Folder Path | The path where the migration scripts to run are. |
+| Journal To SQL Table | If set, each migration script will only be run once. A journal of the already run scripts is kept in the table `_SchemaVersions`. |
+| Script File Filter | A regular expression used against the full path of the migration scripts to select which to run. |
+
+#### An Example
+
+Granted that you might have two type of scripts. Some that are meant to only be run once which are named like `1612312359-alterstuff.sql`. And some that are meant to be run on each deploy which are named like `everytime-storedprocedures.sql` .
+
+You can configure two *Update Database With DbUp*-tasks. The first with *Journal To SQL Table* checked and with *Script File Filter* set to `\d{10}-.*`. The second with *Journal To SQL Table* unchecked and with *Script File Filter* set to `everytime-.*`.
+
+*Since stored procedures do not keep data, it is convenient to let them be recreated during each deploy. That way you can update their scripts instead of having to add new with slightly modified content.* 
+
+## Offline Scenarios
+
+The *Update Database With DbUp*-task downloads the latest version of DbUp during its first execution. If you intend to use this task on a machine that has not got access to the Internet, you have to download the DbUp.dll manually and place it in the following path:
+
+`%TEMP%\DatabaseMigration\dbup.*\lib\net35\DbUp.dll`
+
+## Limitations
+
+Although DbUp supports many databases, this extension currently only works with Microsoft SQL Server or Microsoft SQL Azure. You can contribute to this extension through its [GitHub Repository](https://github.com/johanclasson/vso-agent-tasks/tree/master/UpdateDatabaseWithDbUp). 
