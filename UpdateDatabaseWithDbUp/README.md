@@ -20,7 +20,7 @@ I am not the author of DbUp, but a mere user of that awesome library.
 
 You will find the *Update Database with DbUp*-build and release task under the *deploy* category.
 
-<img src="https://github.com/johanclasson/vso-agent-tasks/raw/master/UpdateDatabaseWithDbUp/example.png" alt="Update Database with DbUp User Interface" width="500" height="351">
+<img src="https://github.com/johanclasson/vso-agent-tasks/raw/master/UpdateDatabaseWithDbUp/example.png" alt="Update Database with DbUp User Interface" width="500" height="291">
 
 ### Parameters
 
@@ -30,6 +30,7 @@ You will find the *Update Database with DbUp*-build and release task under the *
 | Script Folder Path | The path where the migration scripts to run are. |
 | Journal To SQL Table | If set, each migration script will only be run once. A journal of the already run scripts is kept in the table `_SchemaVersions`. |
 | Script File Filter | A regular expression used against the full path of the migration scripts to select which to run. |
+| Transaction Strategy | Select one of *No Transactions*, *Transaction Per Script* and *Single Transaction*. |
 
 #### An Example
 
@@ -47,4 +48,11 @@ The *Update Database With DbUp*-task downloads the latest version of DbUp during
 
 ## Limitations
 
-Although DbUp supports many databases, this extension currently only works with Microsoft SQL Server or Microsoft SQL Azure. You can contribute to this extension through its [GitHub Repository](https://github.com/johanclasson/vso-agent-tasks/tree/master/UpdateDatabaseWithDbUp). 
+Although DbUp supports many databases, this extension currently only works with Microsoft SQL Server or Microsoft SQL Azure. You can contribute to this extension through its [GitHub Repository](https://github.com/johanclasson/vso-agent-tasks/tree/master/UpdateDatabaseWithDbUp).
+
+## Release Notes
+
+| When | Version | What |
+|------|---------|------|
+| 2016-10-23 | 0.10.0 | Fix log issue on TFS2015, and added transaction selection feature. |
+| 2016-10-20 | 0.9.0 | Initial release. |

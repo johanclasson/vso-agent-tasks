@@ -12,7 +12,7 @@
     "author": "Johan Classon",
     "version": {
         "Major": 0,
-        "Minor": 9,
+        "Minor": 10,
         "Patch": 0
     },
     "demands": [
@@ -56,6 +56,20 @@
             "label": "Script File Filter", 
             "defaultValue": ".*",
             "helpMarkDown": "If only some of the scripts in the script folder path should be run. For example if jornaled scripts are named 201601011213-script_description.sql and the not journaled scripts are named everytime-script_description.sql, set the filet to ^everytime to target just the not journaled scripts.",
+            "groupName": "advanced"
+        },
+        { 
+            "name": "TransactionStrategy", 
+            "type": "pickList",
+            "options": {
+                "NoTransactions": "No Transactions",
+                "TransactionPerScript": "Transaction Per Script",
+                "SingleTransaction": "Single Transaction"
+            },
+            "label": "Transaction Strategy", 
+            "defaultValue": "TransactionPerScript",
+            "required": true,
+            "helpMarkDown": "Select No Transactions if you want to have manual control over the transactions through the content of the SQL scripts.",
             "groupName": "advanced"
         }
     ],

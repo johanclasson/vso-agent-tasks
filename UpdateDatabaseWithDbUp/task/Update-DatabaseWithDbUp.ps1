@@ -2,7 +2,9 @@ param(
     [Parameter(Mandatory=$true)][string]$ConnectionString,
     [string]$ScriptPath = '.',
     [ValidateSet('NullJournal','SqlTable')][string]$Journal = 'SqlTable',
-    [string]$Filter = '.*')
+    [string]$Filter = '.*',
+    [ValidateSet('NoTransactions','TransactionPerScript','SingleTransaction')]
+    [string]$TransactionStrategy = 'TransactionPerScript')
 
 $ScriptPath = Resolve-Path $ScriptPath
 
@@ -32,19 +34,26 @@ Add-Type -Path $dllPath
 $sourceCode = @"
 public class VstsUpgradeLog : DbUp.Engine.Output.IUpgradeLog
 {
-    public void WriteInformation(string format, params object[] args)
+    private System.Action<string> WriteHost { get; set; }
+
+    public VstsUpgradeLog(System.Action<string> writeHost)
     {
-        System.Console.WriteLine(format, args);
+        WriteHost = writeHost;
     }
 
-    public void WriteError(string format, params object[] args)
+    public void WriteInformation(string format, params object[] args)
     {
-        System.Console.WriteLine("##vso[task.logissue type=error;]" + string.Format(format, args));
+        WriteHost(string.Format(format, args));
     }
 
     public void WriteWarning(string format, params object[] args)
     {
-        System.Console.WriteLine("##vso[task.logissue type=warning;]" + string.Format(format, args));
+        WriteHost("##vso[task.logissue type=warning;]" + string.Format(format, args));
+    }
+
+    public void WriteError(string format, params object[] args)
+    {
+        WriteHost("##vso[task.logissue type=error;]" + string.Format(format, args));
     }
 }
 "@
@@ -57,11 +66,21 @@ $filterFunc = {
     return $file -match $Filter
 }
 
+[Action[string]]$infoDelegate = {param($message) Write-Host $message}
+
 $dbUp = [DbUp.DeployChanges]::To
 $dbUp = [SqlServerExtensions]::SqlDatabase($dbUp, $ConnectionString)
 $dbUp = [StandardExtensions]::WithScriptsFromFileSystem($dbUp, $ScriptPath, $filterFunc)
-$dbUp = [StandardExtensions]::WithTransactionPerScript($dbUp)
-$dbUp = [StandardExtensions]::LogTo($dbUp, (New-Object VstsUpgradeLog))
+if ($TransactionStrategy -eq 'TransactionPerScript') {
+    $dbUp = [StandardExtensions]::WithTransactionPerScript($dbUp)
+}
+elseif ($TransactionStrategy -eq 'SingleTransaction') {
+    $dbUp = [StandardExtensions]::WithTransaction($dbUp)
+}
+else {
+    $dbUp = [StandardExtensions]::WithoutTransaction($dbUp)
+}
+$dbUp = [StandardExtensions]::LogTo($dbUp, (New-Object VstsUpgradeLog $infoDelegate))
 if ($Journal -eq "NullJournal") {
     $dbUp = [StandardExtensions]::JournalTo($dbUp, (New-Object DbUp.Helpers.NullJournal))
 }
