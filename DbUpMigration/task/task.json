@@ -1,8 +1,8 @@
 {
     "id": "4182dbda-71db-4d18-89b3-75255b7802eb",
     "name": "UpdateDatabaseWithDbUp",
-    "friendlyName": "Update Database with DbUp",
-    "description": "DbUp is a .NET library that helps you to deploy changes to SQL Server databases. It tracks which SQL scripts have been run already, and runs the change scripts that are needed to get your database up to date.",
+    "friendlyName": "DbUp Migration",
+    "description": "Runs SQL Server change scripts, and only those which have not been run already.",
     "helpMarkDown": "[More Information](https://github.com/johanclasson/vso-agent-tasks)",
     "category": "Deploy",
     "visibility": [
@@ -13,7 +13,7 @@
     "version": {
         "Major": 0,
         "Minor": 10,
-        "Patch": 0
+        "Patch": 3
     },
     "demands": [
         "DotNetFramework"
@@ -40,7 +40,7 @@
             "label": "Script Folder Path", 
             "defaultValue": "", 
             "required": true,
-            "helpMarkDown": "The fodler path where all scripts which should be run are located."
+            "helpMarkDown": "The folder path where all scripts which should be run are located."
         },
         { 
             "name": "JournalToSqlTable", 
@@ -73,7 +73,7 @@
             "groupName": "advanced"
         }
     ],
-    "instanceNameFormat": "Update Database with DbUp",
+    "instanceNameFormat": "DbUp Migration",
     "execution": {
         "PowerShell": {
             "target": "$(currentDirectory)\\Update-Database.ps1",
