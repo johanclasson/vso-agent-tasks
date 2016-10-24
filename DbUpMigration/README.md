@@ -1,4 +1,4 @@
-# Update Database With DbUp
+# DbUp Migration
 
 If you usually do migrations by comparing the schema of two databases, now is an opportunity for you to do something better.
 
@@ -18,9 +18,9 @@ I am not the author of DbUp, but a mere user of that awesome library.
 
 ## How to Get Started
 
-You will find the *Update Database with DbUp*-build and release task under the *deploy* category.
+You will find the *DbUp Migration*-build and release task under the *deploy* category.
 
-<img src="https://github.com/johanclasson/vso-agent-tasks/raw/master/UpdateDatabaseWithDbUp/example.png" alt="Update Database with DbUp User Interface" width="500" height="291">
+<img src="https://github.com/johanclasson/vso-agent-tasks/raw/master/DbUpMigration/example.png" alt="DbUp Migration User Interface" width="500" height="291">
 
 ### Parameters
 
@@ -36,23 +36,23 @@ You will find the *Update Database with DbUp*-build and release task under the *
 
 Granted that you might have two type of scripts. Some that are meant to only be run once which are named like `1612312359-alterstuff.sql`. And some that are meant to be run on each deploy which are named like `everytime-storedprocedures.sql` .
 
-You can configure two *Update Database With DbUp*-tasks. The first with *Journal To SQL Table* checked and with *Script File Filter* set to `\d{10}-.*`. The second with *Journal To SQL Table* unchecked and with *Script File Filter* set to `everytime-.*`.
+You can configure two *DbUp Migration*-tasks. The first with *Journal To SQL Table* checked and with *Script File Filter* set to `\d{10}-.*`. The second with *Journal To SQL Table* unchecked and with *Script File Filter* set to `everytime-.*`.
 
 *Since stored procedures do not keep data, it is convenient to let them be recreated during each deploy. That way you can update their scripts instead of having to add new with slightly modified content.* 
 
 ## Offline Scenarios
 
-The *Update Database With DbUp*-task downloads the latest version of DbUp during its first execution. If you intend to use this task on a machine that has not got access to the Internet, you have to download the DbUp.dll manually and place it in the following path:
+The *DbUp Migration*-task downloads the latest version of DbUp during its first execution. If you intend to use this task on a machine that has not got access to the Internet, you have to download the DbUp.dll manually and place it in the following path:
 
 `%TEMP%\DatabaseMigration\dbup.*\lib\net35\DbUp.dll`
 
 ## Limitations
 
-Although DbUp supports many databases, this extension currently only works with Microsoft SQL Server or Microsoft SQL Azure. You can contribute to this extension through its [GitHub Repository](https://github.com/johanclasson/vso-agent-tasks/tree/master/UpdateDatabaseWithDbUp).
+Although DbUp supports many databases, this extension currently only works with Microsoft SQL Server or Microsoft SQL Azure. You can contribute to this extension through its [GitHub Repository](https://github.com/johanclasson/vso-agent-tasks/tree/master/DbUpMigration).
 
 ## Release Notes
 
 | When | Version | What |
 |------|---------|------|
-| 2016-10-23 | 0.10.0 | Fix log issue on TFS2015, and added transaction selection feature. |
+| 2016-10-23 | 0.10.3 | Fix log issue on TFS2015, and added transaction selection feature. |
 | 2016-10-20 | 0.9.0 | Initial release. |
