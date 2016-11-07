@@ -54,5 +54,6 @@ Although DbUp supports many databases, this extension currently only works with 
 
 | When | Version | What |
 |------|---------|------|
-| 2016-10-23 | 0.10.3 | Fix log issue on TFS2015, and added transaction selection feature. |
+| 2016-11-07 | 0.10.5 | Fixed timeut issue. |
+| 2016-10-23 | 0.10.3 | Fixed log issue on TFS2015, and added transaction selection feature. |
 | 2016-10-20 | 0.9.0 | Initial release. |
