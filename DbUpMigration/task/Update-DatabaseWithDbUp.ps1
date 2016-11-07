@@ -66,6 +66,11 @@ $filterFunc = {
     return $file -match $Filter
 }
 
+$configFunc = {
+    param($configuration)
+    $configuration.ScriptExecutor.ExecutionTimeoutSeconds = 0
+}
+
 [Action[string]]$infoDelegate = {param($message) Write-Host $message}
 
 $dbUp = [DbUp.DeployChanges]::To
@@ -87,6 +92,7 @@ if ($Journal -eq "NullJournal") {
 else {
     $dbUp = [SqlServerExtensions]::JournalToSqlTable($dbUp, 'dbo', '_SchemaVersions')
 }
+$dbUp.Configure($configFunc)
 $result = $dbUp.Build().PerformUpgrade()
 if (!$result.Successful) {
     $errorMessage = ""
