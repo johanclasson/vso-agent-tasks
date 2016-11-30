@@ -18,7 +18,7 @@ gci $Root -Filter $Pattern -Recurse | %{
     }
 
     # Delete transforms
-    $removePattern = $_.FullName -replace ".$Configuration.",".*."
+    $removePattern = Join-Path $_.Directory ($_.Name -replace ".$Configuration.",".*.")
     rm $removePattern
 }
 exit 0
