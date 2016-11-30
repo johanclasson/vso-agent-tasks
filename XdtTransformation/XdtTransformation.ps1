@@ -2,6 +2,8 @@ param(
     [string]$Root,
     [string]$Configuration,
     [string]$CttPath = ".\ctt.exe")
+    
+#TODO: Make i (Indent:bool) and ic (IndentChars:int=>string) configurable
 
 $ErrorActionPreference = 'Stop'
 
