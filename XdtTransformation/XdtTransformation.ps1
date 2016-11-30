@@ -8,7 +8,7 @@ $ErrorActionPreference = 'Stop'
 $Pattern = "*.$Configuration.*"
 gci $Root -Filter $Pattern -Recurse | %{
     # Transform
-    $target = $_.FullName -replace ".$Configuration.","."
+    $target = Join-Path $_.Directory ($_.Name -replace ".$Configuration.",".")
     $transform = $_.FullName
     $ctt = gi $CttPath
     Invoke-Expression "$ctt s:""$target"" t:""$transform"" d:""$target"" pw v"
