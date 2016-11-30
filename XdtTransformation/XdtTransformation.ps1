@@ -11,7 +11,7 @@ gci $Root -Filter $Pattern -Recurse | %{
     $target = Join-Path $_.Directory ($_.Name -replace ".$Configuration.",".")
     $transform = $_.FullName
     $ctt = gi $CttPath
-    Invoke-Expression "$ctt s:""$target"" t:""$transform"" d:""$target"" pw v"
+    Invoke-Expression "$ctt s:""$target"" t:""$transform"" d:""$target"" pw v i ic:""  """
     if ($LASTEXITCODE -ne 0){
         Write-Error "Something bad happened ($LASTEXITCODE)"
         exit -1
