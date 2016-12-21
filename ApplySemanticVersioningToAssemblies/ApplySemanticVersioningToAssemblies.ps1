@@ -29,9 +29,10 @@ if ($buildNumber -match $pattern -ne $true) {
 # Declare functions
 
 function Replace-Version($content, $version, $attribute) {
+    $versionReplaced = $false
+	# CS
     $versionAttribute = "[assembly: $attribute(""$version"")]"
     $pattern = "\[assembly: $attribute\("".*""\)\]"
-    $versionReplaced = $false
     $content = $content | %{
         if ($_ -match $pattern) {
             $versionReplaced = $true
@@ -40,6 +41,18 @@ function Replace-Version($content, $version, $attribute) {
         }
         $_
     }
+	# VB
+    $versionAttribute = "<Assembly: $attribute(""$version"")>"
+    $pattern = "\<Assembly: $attribute\("".*""\)\>"
+    $content = $content | %{
+        if ($_ -match $pattern) {
+            $versionReplaced = $true
+            Write-Host "     * Replaced $($Matches[0]) with $versionAttribute"
+            $_ = $_ -replace [regex]::Escape($Matches[0]),$versionAttribute
+        }
+        $_
+    }
+	
     if (-not $versionReplaced) {
         Write-Host "     * Added $versionAttribute to end of content"
         $content += [System.Environment]::NewLine + $versionAttribute
