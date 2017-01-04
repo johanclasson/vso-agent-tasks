@@ -28,22 +28,18 @@ if ($buildNumber -match $pattern -ne $true) {
 
 # Declare functions
 
-function Replace-Version($content, $version, $attribute) {
-    $versionReplaced = $false
-	# CS
-    $versionAttribute = "[assembly: $attribute(""$version"")]"
-    $pattern = "\[assembly: $attribute\("".*""\)\]"
-    $content = $content | %{
-        if ($_ -match $pattern) {
-            $versionReplaced = $true
-            Write-Host "     * Replaced $($Matches[0]) with $versionAttribute"
-            $_ = $_ -replace [regex]::Escape($Matches[0]),$versionAttribute
-        }
-        $_
+function Replace-Version($content, $version, $attribute, $language) {
+    if ($language = "cs") {
+        $versionAttribute = "[assembly: $attribute(""$version"")]"
+        $pattern = "\[assembly: $attribute\("".*""\)\]"
     }
-	# VB
-    $versionAttribute = "<Assembly: $attribute(""$version"")>"
-    $pattern = "\<Assembly: $attribute\("".*""\)\>"
+    elseif ($language = "vb") {
+        $versionAttribute = "<Assembly: $attribute(""$version"")>"
+        $pattern = "\<Assembly: $attribute\("".*""\)\>"
+    }
+
+    $versionReplaced = $false
+
     $content = $content | %{
         if ($_ -match $pattern) {
             $versionReplaced = $true
@@ -87,11 +83,15 @@ gci -Path $pathToSearch -Filter $searchFilter -Recurse | %{
     # remove the read-only bit on the file
     sp $_.FullName IsReadOnly $false
  
+    # language
+    $language = $_.Extension.ToLower().Substring(1,2)
+    Write-Host "  -> Language $($language)"
+    
     # run the regex replace
     $content = gc $_.FullName
-    $content = Replace-Version -content $content -version $version -attribute 'AssemblyVersion'
-    $content = Replace-Version -content $content -version $fileVersion -attribute 'AssemblyFileVersion'
-    $content = Replace-Version -content $content -version $informationalVersion -attribute 'AssemblyInformationalVersion'
+    $content = Replace-Version -content $content -version $version -attribute 'AssemblyVersion' -language $language
+    $content = Replace-Version -content $content -version $fileVersion -attribute 'AssemblyFileVersion' -language $language
+    $content = Replace-Version -content $content -version $informationalVersion -attribute 'AssemblyInformationalVersion' -language $language
     $content | sc $_.FullName -Encoding UTF8
 }
 Write-Host "Done!"
