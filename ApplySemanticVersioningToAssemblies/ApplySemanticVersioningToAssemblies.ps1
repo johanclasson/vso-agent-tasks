@@ -29,11 +29,11 @@ if ($buildNumber -match $pattern -ne $true) {
 # Declare functions
 
 function Replace-Version($content, $version, $attribute, $language) {
-    if ($language = "cs") {
+    if ($language -eq "cs") {
         $versionAttribute = "[assembly: $attribute(""$version"")]"
         $pattern = "\[assembly: $attribute\("".*""\)\]"
     }
-    elseif ($language = "vb") {
+    elseif ($language -eq "vb") {
         $versionAttribute = "<Assembly: $attribute(""$version"")>"
         $pattern = "\<Assembly: $attribute\("".*""\)\>"
     }
