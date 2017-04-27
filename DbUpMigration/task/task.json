@@ -50,6 +50,14 @@
             "helpMarkDown": "If the scripts should be journaled in a SQL table. Not journaled scripts will be run each time.",
             "groupName": "advanced"
         },
+        {
+            "name": "JournalName",
+            "type": "string",
+            "label": "JournalName",
+            "defaultValue": "_SchemaVersions", 
+            "helpMarkDown": "The name of the journal table, if enabled.",
+            "required": true
+        },
         { 
             "name": "ScriptFileFilter", 
             "type": "string",

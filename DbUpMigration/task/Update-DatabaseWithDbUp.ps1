@@ -4,7 +4,8 @@ param(
     [ValidateSet('NullJournal','SqlTable')][string]$Journal = 'SqlTable',
     [string]$Filter = '.*',
     [ValidateSet('NoTransactions','TransactionPerScript','SingleTransaction')]
-    [string]$TransactionStrategy = 'TransactionPerScript')
+    [string]$TransactionStrategy = 'TransactionPerScript',
+	[string]$JournalName = '_SchemaVersions')
 
 $ScriptPath = Resolve-Path $ScriptPath
 
@@ -102,7 +103,7 @@ if ($Journal -eq "NullJournal") {
     $dbUp = [StandardExtensions]::JournalTo($dbUp, (New-Object DbUp.Helpers.NullJournal))
 }
 else {
-    $dbUp = [SqlServerExtensions]::JournalToSqlTable($dbUp, 'dbo', '_SchemaVersions')
+    $dbUp = [SqlServerExtensions]::JournalToSqlTable($dbUp, 'dbo', $JournalName)
 }
 $dbUp.Configure($configFunc)
 $result = $dbUp.Build().PerformUpgrade()
