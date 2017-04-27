@@ -12,8 +12,8 @@
     "author": "Johan Classon",
     "version": {
         "Major": 0,
-        "Minor": 10,
-        "Patch": 7
+        "Minor": 11,
+        "Patch": 0
     },
     "demands": [
         "DotNetFramework"
@@ -53,10 +53,11 @@
         {
             "name": "JournalName",
             "type": "string",
-            "label": "JournalName",
+            "label": "Journal Table Name",
             "defaultValue": "_SchemaVersions", 
             "helpMarkDown": "The name of the journal table, if enabled.",
-            "required": true
+            "required": true,
+            "groupName": "advanced"
         },
         { 
             "name": "ScriptFileFilter", 
