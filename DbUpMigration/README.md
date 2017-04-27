@@ -28,7 +28,8 @@ You will find the *DbUp Migration*-build and release task under the *deploy* cat
 |------|-------------|
 | Connection String | The connection string used to connect to the database. |
 | Script Folder Path | The path where the migration scripts to run are. |
-| Journal To SQL Table | If set, each migration script will only be run once. A journal of the already run scripts is kept in the table `_SchemaVersions`. |
+| Journal To SQL Table | If set, each migration script will only be run once. |
+| Journal Table Name | The name of the table where the journal of the already run scripts are stored. |
 | Script File Filter | A regular expression used against the full path of the migration scripts to select which to run. |
 | Transaction Strategy | Select one of *No Transactions*, *Transaction Per Script* and *Single Transaction*. |
 
@@ -54,7 +55,8 @@ Although DbUp supports many databases, this extension currently only works with 
 
 | When | Version | What |
 |------|---------|------|
-| 2017-04-13 | 0.10.7 | Fixed nuget issue. |
+| 2017-04-27 | 0.11.0 | Added configurable journal table name feature. |
+| 2017-04-13 | 0.10.7 | Fixed NuGet issue. |
 | 2016-11-07 | 0.10.5 | Fixed timeut issue. |
 | 2016-10-23 | 0.10.3 | Fixed log issue on TFS2015, and added transaction selection feature. |
 | 2016-10-20 | 0.9.0 | Initial release. |
