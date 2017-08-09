@@ -3,18 +3,26 @@ param([string]$ConnectionString,
       [string]$JournalToSqlTable,
       [string]$JournalName,
       [string]$ScriptFileFilter,
-      [string]$TransactionStrategy)
+      [string]$TransactionStrategy,
+      [string]$LogScriptOutput,
+      [string]$SearchTopDirectoryOnly,
+      [string]$Order)
 
-$Journal = 'NullJournal'
+$journal = 'NullJournal'
 if ($JournalToSqlTable -eq [bool]::TrueString) {
-    $Journal = 'SqlTable'
+    $journal = 'SqlTable'
+}
+$logging = 'Quiet'
+if ($LogScriptOutput -eq [bool]::TrueString) {
+    $logging = 'LogScriptOutput'
+}
+$searchMode = 'SearchAllDirectories'
+if ($SearchTopDirectoryOnly -eq [bool]::TrueString) {
+    $searchMode = 'SearchTopDirectoryOnly'
 }
 
-Write-Host "ConnectionString: $ConnectionString"
-Write-Host "ScriptPath: $ScriptPath"
-Write-Host "Journal: $Journal"
-Write-Host "JournalName: $JournalName"
-Write-Host "ScriptFileFilter: $ScriptFileFilter"
-Write-Host "TransactionStrategy: $TransactionStrategy"
-
-.\Update-DatabaseWithDbUp.ps1 -ConnectionString $ConnectionString -ScriptPath $ScriptPath -Journal $Journal -JournalName $JournalName -Filter $ScriptFileFilter -TransactionStrategy $TransactionStrategy
+. .\Update-DatabaseWithDbUp.ps1 
+$success = Update-DatabaseWithDbUp -ConnectionString $ConnectionString -ScriptPath $ScriptPath -Journal $journal -JournalName $JournalName -Filter $ScriptFileFilter -TransactionStrategy $TransactionStrategy -Logging $logging -SearchMode $searchMode -Order $Order
+if (-not $success) {
+    exit -1
+}

@@ -1,51 +1,50 @@
-param(
-    [Parameter(Mandatory=$true)][string]$ConnectionString,
-    [string]$ScriptPath = '.',
-    [ValidateSet('NullJournal','SqlTable')][string]$Journal = 'SqlTable',
-    [string]$Filter = '.*',
-    [ValidateSet('NoTransactions','TransactionPerScript','SingleTransaction')]
-    [string]$TransactionStrategy = 'TransactionPerScript',
-	[string]$JournalName = '_SchemaVersions')
-
-$ScriptPath = Resolve-Path $ScriptPath
+function Get-TempDir {
+    return $env:TEMP
+}
 
 function Install-DbUpAndGetDllPath {
-    $workingDir = Join-Path $env:TEMP 'DatabaseMigration'
+    $workingDir = Join-Path (Get-TempDir) 'DatabaseMigration'
     $dllFilePattern = Join-Path $workingDir 'dbup.*\lib\net35\DbUp.dll'
 
     if (-not (Test-Path $workingDir)) {
-        ni $workingDir -ItemType Directory -Force | Out-Null
+        New-Item $workingDir -ItemType Directory -Force | Out-Null
     }
 
     if (-not (Test-Path $dllFilePattern)) {
         $oldLocation = Get-Location
-        cd $workingDir
-        
-        # Check if nuget.exe is already in the path and use that
-        $nuget = Get-Command "nuget.exe" -ErrorAction SilentlyContinue
-        if ($nuget -eq $null) {
-            # nuget.exe not in path, download it
-            wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -OutFile nuget.exe -UseBasicParsing
-            $nuget = ".\nuget.exe"
-        }
-        
-        & $nuget install dbup | Out-Null
+        try {
+            Set-Location $workingDir
+            
+            # Check if nuget.exe is already in the path and use that
+            $nuget = Get-Command "nuget.exe" -ErrorAction SilentlyContinue
+            if ($nuget -eq $null) {
+                # nuget.exe not in path, download it
+                Invoke-WebRequest https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -OutFile nuget.exe -UseBasicParsing
+                $nuget = ".\nuget.exe"
+            }
 
-        if (Test-Path .\nuget.exe) {
-            rm .\nuget.exe
-        }
+            & $nuget install dbup | Out-Null
 
-        cd $oldLocation
+            if (Test-Path .\nuget.exe) {
+                Remove-Item .\nuget.exe
+            }
+        }
+        finally {
+            Set-Location $oldLocation
+        }
     }
-    return Resolve-Path $dllFilePattern | select -ExpandProperty Path -First 1
+    return Resolve-Path $dllFilePattern | Select-Object -ExpandProperty Path -First 1
 }
 
 $dllPath = Install-DbUpAndGetDllPath
 Add-Type -Path $dllPath
 
 # Log output is lost after build task is run. This hack solves it.
-$sourceCode = @"
-public class VstsUpgradeLog : DbUp.Engine.Output.IUpgradeLog
+if (-not ([System.Management.Automation.PSTypeName]'VstsUpgradeLog').Type) {
+    $upgradeLogSourceCode = @"
+using DbUp.Engine.Output;
+
+public class VstsUpgradeLog : IUpgradeLog
 {
     private System.Action<string> WriteHost { get; set; }
 
@@ -56,27 +55,106 @@ public class VstsUpgradeLog : DbUp.Engine.Output.IUpgradeLog
 
     public void WriteInformation(string format, params object[] args)
     {
-        WriteHost(string.Format(format, args));
+        WriteHost(string.Format(format, args).Trim());
     }
 
     public void WriteWarning(string format, params object[] args)
     {
-        WriteHost("##vso[task.logissue type=warning;]" + string.Format(format, args));
+        // ## is separated from command text so that system.debug mode does not bail out
+        WriteHost("##" + "vso[task.logissue type=warning;]" + string.Format(format, args));
     }
 
     public void WriteError(string format, params object[] args)
     {
-        WriteHost("##vso[task.logissue type=error;]" + string.Format(format, args));
+        WriteHost("##" + "vso[task.logissue type=error;]" + string.Format(format, args));
     }
 }
 "@
-if (-not ([System.Management.Automation.PSTypeName]'VstsUpgradeLog').Type) {
-    Add-Type -TypeDefinition $sourceCode -Language CSharp -ReferencedAssemblies $dllPath
+    Add-Type -TypeDefinition $upgradeLogSourceCode -Language CSharp -ReferencedAssemblies $dllPath
 }
 
-$filterFunc = {
-    param([string]$file)
-    return $file -match $Filter
+if (-not ([System.Management.Automation.PSTypeName]'FileSystemScriptProvider').Type) {
+    # This is a FileSystemScriptProvider inspired of that is implemented in  DbUp 4.0, with added ordering feature.
+    $scriptProviderSourceCode = @"
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using DbUp.Engine;
+using DbUp.Engine.Transactions;
+
+public enum FileSearchOrder
+{
+    Filename = 0,
+    FilePath = 1
+}
+
+public class FileSystemScriptOptions
+{
+    public FileSystemScriptOptions()
+    {
+        Encoding = Encoding.Default;
+    }
+
+    public bool IncludeSubDirectories { get; set; }
+    public FileSearchOrder Order { get; set; }
+    public Func<string, bool> Filter { get; set; }
+    public Encoding Encoding { get; set; }
+}
+
+public class FileSystemScriptProvider : IScriptProvider
+{
+    private readonly string directoryPath;
+    private readonly Func<string, bool> filter;
+    private readonly Encoding encoding;
+    private FileSystemScriptOptions options;
+
+    public FileSystemScriptProvider(string directoryPath):this(directoryPath, new FileSystemScriptOptions())
+    {
+    }
+
+    public FileSystemScriptProvider(string directoryPath, FileSystemScriptOptions options)
+    {
+        if (options==null)
+            throw new ArgumentNullException("options");
+        this.directoryPath = directoryPath.Replace("/","\\").EndsWith("\\") ? directoryPath.Substring(0, directoryPath.Length - 1) : directoryPath;
+        this.filter = options.Filter;
+        this.encoding = options.Encoding;
+        this.options = options;
+    }
+
+    public IEnumerable<SqlScript> GetScripts(IConnectionManager connectionManager)
+    {
+        var files = Directory.GetFiles(directoryPath, "*.sql", ShouldSearchSubDirectories()).AsEnumerable();
+        if (this.filter != null)
+        {
+            files = files.Where(filter);
+        }
+        var infos = files.Select(f => new FileInfo(f));
+        if (options.Order == FileSearchOrder.Filename)
+        {
+            infos = infos.OrderBy(i => i.Name);
+        }
+        return infos.Select(i => SqlScriptFromFile(i)).ToArray();
+    }
+
+    private SqlScript SqlScriptFromFile(FileInfo file)
+    {
+        using (FileStream fileStream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
+        {
+            var fileName = file.FullName.Substring(directoryPath.Length + 1);
+            return SqlScript.FromStream(fileName, fileStream, encoding);
+        }
+    }
+
+    private SearchOption ShouldSearchSubDirectories()
+    {
+        return options.IncludeSubDirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+    }
+}
+"@
+    Add-Type -TypeDefinition $scriptProviderSourceCode -Language CSharp -ReferencedAssemblies $dllPath
 }
 
 $configFunc = {
@@ -84,35 +162,85 @@ $configFunc = {
     $configuration.ScriptExecutor.ExecutionTimeoutSeconds = 0
 }
 
-[Action[string]]$infoDelegate = {param($message) Write-Host $message}
+function Write-Information {
+    # Used to mock out logs in the tests
+    param($message) Write-Host $message
+}
 
-$dbUp = [DbUp.DeployChanges]::To
-$dbUp = [SqlServerExtensions]::SqlDatabase($dbUp, $ConnectionString)
-$dbUp = [StandardExtensions]::WithScriptsFromFileSystem($dbUp, $ScriptPath, $filterFunc)
-if ($TransactionStrategy -eq 'TransactionPerScript') {
-    $dbUp = [StandardExtensions]::WithTransactionPerScript($dbUp)
-}
-elseif ($TransactionStrategy -eq 'SingleTransaction') {
-    $dbUp = [StandardExtensions]::WithTransaction($dbUp)
-}
-else {
-    $dbUp = [StandardExtensions]::WithoutTransaction($dbUp)
-}
-$dbUp = [StandardExtensions]::LogTo($dbUp, (New-Object VstsUpgradeLog $infoDelegate))
-if ($Journal -eq "NullJournal") {
-    $dbUp = [StandardExtensions]::JournalTo($dbUp, (New-Object DbUp.Helpers.NullJournal))
-}
-else {
-    $dbUp = [SqlServerExtensions]::JournalToSqlTable($dbUp, 'dbo', $JournalName)
-}
-$dbUp.Configure($configFunc)
-$result = $dbUp.Build().PerformUpgrade()
-if (!$result.Successful) {
-    $errorMessage = ""
-    if ($result.Error -ne $null) {
-        $errorMessage = $result.Error.Message
+[Action[string]]$infoDelegate = {param($message) Write-Information $message}
+
+function Update-DatabaseWithDbUp {
+    param(
+        [Parameter(Mandatory = $true)][string]$ConnectionString,
+        [string]$ScriptPath = '.',
+        [ValidateSet('NullJournal', 'SqlTable')][string]$Journal = 'SqlTable',
+        [string]$Filter = '.*',
+        [ValidateSet('NoTransactions', 'TransactionPerScript', 'SingleTransaction')]
+        [string]$TransactionStrategy = 'TransactionPerScript',
+        [string]$JournalName = '_SchemaVersions',
+        [ValidateSet('LogScriptOutput', 'Quiet')]
+        [string]$Logging = 'Quiet',
+        [ValidateSet('SearchAllDirectories', 'SearchTopDirectoryOnly')]
+        [string]$SearchMode = 'SearchTopDirectoryOnly',
+        [ValidateSet('Filename','FilePath')]
+        [string]$Order = 'FilePath')
+
+    $filterFunc = {
+        param([string]$file)
+        return $file -match $Filter
     }
-    Write-Host "##vso[task.logissue type=error;]Database migration failed. $errorMessage"
-    Write-Host "##vso[task.complete result=Failed;]"
-    Exit -1
+    $options = New-Object FileSystemScriptOptions
+    $options.Filter = $filterFunc
+    if ($Order -eq 'Filename') {
+        $options.Order = 0
+    }
+    else {
+        $options.Order = 1
+    }
+    if ($SearchMode -eq 'SearchAllDirectories') {
+        $options.IncludeSubDirectories = $true
+    }
+    $scriptProvider = New-Object FileSystemScriptProvider -ArgumentList $ScriptPath, $options
+
+    $ScriptPath = Resolve-Path $ScriptPath
+
+    $dbUp = [DbUp.DeployChanges]::To
+    $dbUp = [SqlServerExtensions]::SqlDatabase($dbUp, $ConnectionString)
+    $dbUp = [StandardExtensions]::WithScripts($dbUp, $scriptProvider)
+    if ($TransactionStrategy -eq 'TransactionPerScript') {
+        $dbUp = [StandardExtensions]::WithTransactionPerScript($dbUp)
+    }
+    elseif ($TransactionStrategy -eq 'SingleTransaction') {
+        $dbUp = [StandardExtensions]::WithTransaction($dbUp)
+    }
+    else {
+        $dbUp = [StandardExtensions]::WithoutTransaction($dbUp)
+    }
+    $dbUp = [StandardExtensions]::LogTo($dbUp, (New-Object VstsUpgradeLog $infoDelegate))
+    if ($Logging -eq 'LogScriptOutput') {
+        $dbUp = [StandardExtensions]::LogScriptOutput($dbUp)
+    }
+    if ($Journal -eq "NullJournal") {
+        $dbUp = [StandardExtensions]::JournalTo($dbUp, (New-Object DbUp.Helpers.NullJournal))
+    }
+    else {
+        $dbUp = [SqlServerExtensions]::JournalToSqlTable($dbUp, 'dbo', $JournalName)
+    }
+    $dbUp.Configure($configFunc)
+    $result = $dbUp.Build().PerformUpgrade()
+    if (!$result.Successful) {
+        $errorMessage = ""
+        if ($result.Error -ne $null) {
+            $errorMessage = $result.Error.Message
+        }
+        Write-Information "##vso[task.logissue type=error;]Database migration failed. $errorMessage"
+        Write-Information "##vso[task.complete result=Failed;]"
+    }
+    return $result.Successful
+}
+
+function New-DatabaseWithDbUp {
+    param([string]$ConnectionString)
+    $for = [DbUp.EnsureDatabase]::For
+    [SqlServerExtensions]::SqlDatabase($for, $ConnectionString, (New-Object VstsUpgradeLog $infoDelegate))
 }

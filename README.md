@@ -39,7 +39,7 @@ If you make a change to a task that you have previously uploaded, you have to bu
 * [XDT Transformation](#xdt-transformation)
 * [Get ARM Deployment Outputs](#get-arm-deployment-uutputs)
 
-## Apply Semantic Versioning to Assemblies
+### Apply Semantic Versioning to Assemblies
 
 By use of a regular expression, exactly four version numbers (for example 1.2.3.4) are extracted from the build number. All AssemblyInfo.cs files are then iterated and versions are set in the following attributes:
 
@@ -53,7 +53,7 @@ As you well understand, this task must be placed before the build task to make a
 
 ![Apply Semantic Versioning to Assemblies User Interface](/Docs/ApplySemanticVersioningToAssemblies.png?raw=true)
 
-### Practical Use
+#### Practical Use
 
 The informational version format 1.2.3-abc0004, which is compatible with NuGet, can be used to represent prerelease packages from your nightly builds. For example 2.1.3-build0421 could be the semantic version for 421st build targeting the third bugfix of the second API update of the 2.0 release.
 
@@ -61,7 +61,7 @@ When packing a project package and to have NuGet use the informational version n
 
 When you are planning to make a new release, you might find that it is a good idea to have the version numbers you intend to have on release fixed and let the build revision number update until you are done. If this is the case, use `$(BuildDefinitionName).2.1.3$(Rev:.r)` as the *Build number format* for the build. When you think that you are done, you can simply tick "Make Release Version" and build to make a release version which in this case would be 2.1.3. If you would like to build a release candidate, untick "Include Build Revision Number" and replace the "Prerelease Name" to for example RC1 which would result in 2.1.3-RC1. 
 
-### Version Attributes in .Net
+#### Version Attributes in .Net
 
 The `AssemblyVersion` is the number that is used by a dll to point out a reference to a specific version of another dll. If this version is changed in a newer dll, those references needs to be updated to target that dll instead. If you follow semantic versioning, the first two version numbers are the ones to increase when the public API changes. Therefore it is a good idea to include just those in the assembly version.
 
@@ -69,43 +69,43 @@ The `AssemblyFileVersion` is not used by .Net directly, but is instead of value 
 
 The `AssemblyInformationalVersion` is something human-readable that describes a version, for example 1.0-RC1. This can theoretically be whatever text you prefer, but in this task it is only configurable to the format 1.2.3-abc0004. Note that the build number is left padded with zeros. The reason for this is that NuGet sorts prerelease versions alphabetically. Semantic versioning supports Major.Minor.Patch-Prerelease.Build, but NuGet does not. 
 
-### Advanced Options
+#### Advanced Options
 
 You can change the *Build Number Pattern* that is used to extract the version numbers from the build number. If you do, then make sure that you enter matching *Split Characters* and that there would still be exactly four versions present.
 
-## Invoke-Pester
+### Invoke-Pester
 
 Downloads the latest version of Pester from https://github.com/pester/Pester/archive/master.zip and calls Invoke-Pester. The test output is written to "Source Directory"\TEST-pester.xml in NUnit-format so that the test results can be published.
 
-## Nuget Publisher With Credentials
+### Nuget Publisher With Credentials
 
 A demonstration of how to push packages to a NuGet feed that requires authentication. This is made by temporarily adding the credentials to a local Nuget package source before making the push command.
 
-## Invoke Rest Method
+### Invoke Rest Method
 
 The url is polled once every 10 seconds until a responce is given. The task fails after a configurable timeout period if no responce is given.
 
 The task can handle that the url is not registred when the task is started.
 
-## Inline PowerShell
+### Inline PowerShell
 
 Runs a PowerShell script that is entered in task instead of running a script file like the stadard PowerShell task does. This overcomes the trouble of having to check in script files in your repository to have them available at build time. But, it also introduce some difficulties. For example it is not a good practice to have redundant scripts around... 
 
-## DbUp Migration
+### DbUp Migration
 
 Runs a set of SQL scripts in a folder with help of [DbUp](https://dbup.github.io/). Scripts to be run can be filtered by name. It is optional whether to log run SQL scripts to a version history table or not. Scripts which are not logged are run every time a database is updated.
 
-## RoboCopy
+### RoboCopy
 
 Copies files with RoboCopy with the arguments /MIR /R:5 /W:30.
 
-## XDT Transformation
+### XDT Transformation
 
 Runs XDT transformations on any XML files with the excellent [Config Transformation Tool](https://ctt.codeplex.com/).
 
 Transformation files matching `*.{Configuration}.*` are searched for in the root folder. Transformation files for all configurations are deleted after the transformation has been applied.
 
-## Get ARM Deployment Outputs
+### Get ARM Deployment Outputs
 
 Have you ever wanted to use ARM 'outputs' values in another release task, and realized that the included VSTS task [Azure Resource Group Deployment](https://github.com/Microsoft/vsts-tasks/tree/master/Tasks/DeployAzureResourceGroup) does not export them? This task connects to a resource group and creates variables for all of its latest deployment outputs.
 
@@ -122,3 +122,7 @@ For example, if your template.json defines an output:
 You can use it in later tasks by referring to $(arm.myVariable).
 
 Just make sure that you do not make deployments to the same resource group from multiple builds!
+
+## Testing
+
+To be able to run the tests you will need to have Pester installed. The command `Find-Module Pester | Install-Module -SkipPublisherCheck` gets the latest version.

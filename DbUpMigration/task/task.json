@@ -6,13 +6,13 @@
     "helpMarkDown": "[More Information](https://github.com/johanclasson/vso-agent-tasks)",
     "category": "Deploy",
     "visibility": [
-                  "Build",
-                  "Release"
-                  ],
+        "Build",
+        "Release"
+    ],
     "author": "Johan Classon",
     "version": {
         "Major": 0,
-        "Minor": 11,
+        "Minor": 12,
         "Patch": 0
     },
     "demands": [
@@ -30,22 +30,30 @@
             "name": "ConnectionString",
             "type": "string",
             "label": "Connection String",
-            "defaultValue": "Server=$(dbup.server);Database=$(dbup.database);User ID=$(dbup.userId);Password=$(dbup.password);Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;", 
+            "defaultValue": "Server=$(dbup.server);Database=$(dbup.database);User ID=$(dbup.userId);Password=$(dbup.password);Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;",
             "helpMarkDown": "The connection string to the database where the scripts should run on.",
             "required": true
         },
-        { 
-            "name": "ScriptPath", 
-            "type": "filePath", 
-            "label": "Script Folder Path", 
-            "defaultValue": "", 
+        {
+            "name": "ScriptPath",
+            "type": "filePath",
+            "label": "Script Folder Path",
+            "defaultValue": "",
             "required": true,
             "helpMarkDown": "The folder path where all scripts which should be run are located."
         },
-        { 
-            "name": "JournalToSqlTable", 
+        {
+            "name": "LogScriptOutput",
             "type": "boolean",
-            "label": "Journal To SQL Table", 
+            "label": "Log Script Output",
+            "defaultValue": false,
+            "helpMarkDown": "If information and warning logs raised from the SQL scripts should be visible in the log output.",
+            "groupName": "advanced"
+        },
+        {
+            "name": "JournalToSqlTable",
+            "type": "boolean",
+            "label": "Journal To SQL Table",
             "defaultValue": true,
             "helpMarkDown": "If the scripts should be journaled in a SQL table. Not journaled scripts will be run each time.",
             "groupName": "advanced"
@@ -54,31 +62,51 @@
             "name": "JournalName",
             "type": "string",
             "label": "Journal Table Name",
-            "defaultValue": "_SchemaVersions", 
+            "defaultValue": "_SchemaVersions",
             "helpMarkDown": "The name of the journal table, if enabled.",
             "required": true,
             "groupName": "advanced"
         },
-        { 
-            "name": "ScriptFileFilter", 
+        {
+            "name": "ScriptFileFilter",
             "type": "string",
-            "label": "Script File Filter", 
+            "label": "Script File Filter",
             "defaultValue": ".*",
             "helpMarkDown": "If only some of the scripts in the script folder path should be run. For example if jornaled scripts are named 201601011213-script_description.sql and the not journaled scripts are named everytime-script_description.sql, set the filet to ^everytime to target just the not journaled scripts.",
             "groupName": "advanced"
         },
-        { 
-            "name": "TransactionStrategy", 
+        {
+            "name": "TransactionStrategy",
             "type": "pickList",
             "options": {
                 "NoTransactions": "No Transactions",
                 "TransactionPerScript": "Transaction Per Script",
                 "SingleTransaction": "Single Transaction"
             },
-            "label": "Transaction Strategy", 
+            "label": "Transaction Strategy",
             "defaultValue": "TransactionPerScript",
-            "required": true,
             "helpMarkDown": "Select No Transactions if you want to have manual control over the transactions through the content of the SQL scripts.",
+            "groupName": "advanced"
+        },
+        {
+            "name": "SearchTopDirectoryOnly",
+            "type": "boolean",
+            "label": "Search Top Directory Only",
+            "defaultValue": true,
+            "helpMarkDown": "If set, only the scripts directly in the Script Folder Path are executed. If not set, scripts in subdirectories are also executed. Scripts in subfolders are jornaled prefixed with their relative directory path.",
+            "groupName": "advanced"
+        },
+        {
+            "name": "Order",
+            "type": "pickList",
+            "options": {
+                "Filename": "Filename",
+                "FilePath": "File Path"
+            },
+            "label": "Script Execution Order",
+            "defaultValue": "FilePath",
+            "helpMarkDown": "The order in which scripts are executed. If set to Filename, scripts can be organized in different folders while still controlling execution order by their filenames. If set to File Path, scripts are executed one folder at the time. All scripts are executed in ascending order.",
+            "visibleRule":  "SearchTopDirectoryOnly = false",
             "groupName": "advanced"
         }
     ],

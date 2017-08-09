@@ -1,0 +1,1 @@
+RAISERROR('MyError',16,1)

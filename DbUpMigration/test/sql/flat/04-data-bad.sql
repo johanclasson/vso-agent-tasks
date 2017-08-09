@@ -1,0 +1,9 @@
+SET IDENTITY_INSERT Person ON; 
+
+INSERT INTO Person (Id,Name)
+VALUES (2, 'Doe');
+
+INSERT INTO Person (Id,Name)
+VALUES (1, 'John');
+
+SET IDENTITY_INSERT Person OFF; 
