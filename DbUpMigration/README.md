@@ -20,7 +20,7 @@ I am not the author of DbUp, but a mere user of that awesome library.
 
 You will find the *DbUp Migration*-build and release task under the *deploy* category.
 
-<img src="https://github.com/johanclasson/vso-agent-tasks/raw/master/DbUpMigration/example.png" alt="DbUp Migration User Interface" width="500" height="393">
+<img src="https://github.com/johanclasson/vso-agent-tasks/raw/master/DbUpMigration/example.png" alt="DbUp Migration User Interface" width="500" height="445">
 
 ### Parameters
 
@@ -28,13 +28,15 @@ You will find the *DbUp Migration*-build and release task under the *deploy* cat
 |------|-------------|
 | Connection String | The connection string used to connect to the database. |
 | Script Folder Path | The path where the migration scripts to run are. |
-| Log Script Output | If information and warning logs raised from the SQL scripts should be visible in the log output. |
-| Journal To SQL Table | If set, each migration script will only be run once. |
-| Journal Table Name | The name of the table where the journal of the already run scripts are stored. |
+| Include Subfolders | Controls if scripts in subfolders are executed or not. |
+| Script Execution Order | Select one of *Filename*, *File Path* and *Folder Structure*. |
 | Script File Filter | A regular expression used against the full path of the migration scripts to select which to run. |
 | Transaction Strategy | Select one of *No Transactions*, *Transaction Per Script* and *Single Transaction*. |
-| Search Top Directory Only | Controls if scripts in subdirectories are executed or not. |
-| Script Execution Order | Select one of *Filename* and *File Path*. |
+| Journal To SQL Table | If set, each migration script will only be run once. |
+| Journal Table Name | The name of the table where the journal of the already run scripts are stored. |
+| Perform Variable Substitution | If set, SQL variable substitution will be made with matching environment variables. |
+| Variable Substitution Prefix | Filters what environment variables that is used in variable substitution. |
+| Log Script Output | If information and warning logs raised from the SQL scripts should be visible in the log output. |
 
 #### An Example
 
@@ -58,6 +60,7 @@ Although DbUp supports many databases, this extension currently only works with 
 
 | When | Version | What |
 |------|---------|------|
+| 2017-08-15 | 1.0.0 | Added variable substitution feature, and fixed sorting issue. |
 | 2017-08-09 | 0.12.0 | Added scripts in subfolders-, and logging features. |
 | 2017-04-27 | 0.11.0 | Added configurable journal table name feature. |
 | 2017-04-13 | 0.10.7 | Fixed NuGet issue. |

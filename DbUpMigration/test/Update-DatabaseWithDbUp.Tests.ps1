@@ -22,7 +22,7 @@ function Assert-Data {
     param($ExpectedEntries, $PropertyName, $TableName)
     $data = @(Invoke-TestSql "select * from $TableName")
     $data.Length | Should Be @($ExpectedEntries).Length
-    $dataValues = $data | Select-Object -ExpandProperty $PropertyName 
+    $dataValues = $data | Select-Object -ExpandProperty $PropertyName
     for ($i = 0; $i -lt $data.Length; $i++) {
         $dataValues[$i] | Should Be $ExpectedEntries[$i]
     }
@@ -47,7 +47,13 @@ function Write-LogContentToHost {
     Get-Content $logFilePath | ForEach-Object{ Write-Host $_ }
 }
 
-Describe 'update database searching and filtering top directory only' {
+function Clear-LogContent {
+    if (Test-Path $logFilePath) {
+        Remove-Item $logFilePath
+    }
+}
+
+Describe 'update database searching and filtering top folder only' {
     BeforeAll {
         New-Database
         $result = Update-DatabaseWithDbUp -ConnectionString $connectionString -ScriptPath "$here\sql\flat" -Filter 'good'
@@ -66,32 +72,108 @@ Describe 'update database searching and filtering top directory only' {
     }
 }
 
-Describe 'update database searching all directories ordering by filename' {
+Describe 'update database with variable substitution' {
     BeforeAll {
         New-Database
-        $result = Update-DatabaseWithDbUp -ConnectionString $connectionString -ScriptPath "$here\sql\hierarchy" -SearchMode SearchAllDirectories -Order Filename
     }
-    It 'should complete successfully' {
-        $result | Should Be $true
+    function Invoke-Upgrade {
+        param($Prefix = "")
+        Clear-LogContent # This is to fix some fishy behavior that the TestDrive is not reset for each context
+        return Update-DatabaseWithDbUp -ConnectionString $connectionString -ScriptPath "$here\sql\flat" -Filter 'variable' -VariableSubstitution $true -Logging LogScriptOutput -VariableSubstitutionPrefix $Prefix -Journal NullJournal
     }
-    It 'should jornal to the default table' {
-        Assert-Jornal '01-table-good.sql','05\02-data-good.sql','04\03-data-good.sql','03\04-data-good.sql','02\05-data-good.sql' '_SchemaVersions'
+    Context 'without any environment variables' {
+        BeforeAll {
+            $result = Invoke-Upgrade
+        }
+        It 'should fail' {
+            $result | Should Be $false
+        }
+    }
+    Context 'with environment variable and no prefix' {
+        BeforeAll {
+            $env:TESTVARIABLE = 'MyTestValue'
+            $result = Invoke-Upgrade
+            Remove-Item env:\TESTVARIABLE
+        }
+        It 'should complete successfully' {
+            $result | Should Be $true
+        }
+        It 'should log print statements' {
+            $logFilePath | Should Contain 'MyTestValue'
+        }
+    }
+    Context 'with environment variable and prefix' {
+        BeforeAll {
+            $env:MYPREFIX_TESTVARIABLE = 'MyTestValue'
+            $result = Invoke-Upgrade -Prefix 'MyPrefix'
+            Remove-Item env:\MYPREFIX_TESTVARIABLE
+        }
+        It 'should complete successfully' {
+            $result | Should Be $true
+        }
+        It 'should log print statements' {
+            $logFilePath | Should Contain 'MyTestValue'
+        }
+    }
+    Context 'with environmentvariable with the wrong prefix' {
+        BeforeAll {
+            $env:TESTVARIABLE = 'MyTestValue'
+            $env:MyWrongPrefix_TESTVARIABLE = 'MyTestValue'
+            $result = Invoke-Upgrade -Prefix 'MyPrefix'
+            Remove-Item env:\TestVariable
+            Remove-Item env:\MyWrongPrefix_TestVariable
+        }
+        It 'should fail' {
+            $result | Should Be $false
+        }
     }
     AfterAll {
         Remove-Datbase
     }
 }
 
-Describe 'update database searching all directories ordering by file path' {
+Describe 'update database searching all folders ordering by filename' {
     BeforeAll {
         New-Database
-        $result = Update-DatabaseWithDbUp -ConnectionString $connectionString -ScriptPath "$here\sql\hierarchy" -SearchMode SearchAllDirectories -Order FilePath
+        $result = Update-DatabaseWithDbUp -ConnectionString $connectionString -ScriptPath "$here\sql\hierarchy" -SearchMode SearchAllFolders -Order Filename
     }
     It 'should complete successfully' {
         $result | Should Be $true
     }
     It 'should jornal to the default table' {
-        Assert-Jornal '01-table-good.sql','02\05-data-good.sql','03\04-data-good.sql','04\03-data-good.sql','05\02-data-good.sql' '_SchemaVersions'
+        Assert-Jornal '01-table-good.sql','04\02-data-good.sql','03-data-good.sql','02\04-data-good.sql','05-data-good.sql' '_SchemaVersions'
+    }
+    AfterAll {
+        Remove-Datbase
+    }
+}
+
+Describe 'update database searching all folders ordering by file path' {
+    BeforeAll {
+        New-Database
+        $result = Update-DatabaseWithDbUp -ConnectionString $connectionString -ScriptPath "$here\sql\hierarchy" -SearchMode SearchAllFolders -Order FilePath
+    }
+    It 'should complete successfully' {
+        $result | Should Be $true
+    }
+    It 'should jornal to the default table' {
+        Assert-Jornal '01-table-good.sql','02\04-data-good.sql','03-data-good.sql','04\02-data-good.sql','05-data-good.sql' '_SchemaVersions'
+    }
+    AfterAll {
+        Remove-Datbase
+    }
+}
+
+Describe 'update database searching all folders ordering by folder structure' {
+    BeforeAll {
+        New-Database
+        $result = Update-DatabaseWithDbUp -ConnectionString $connectionString -ScriptPath "$here\sql\hierarchy" -SearchMode SearchAllFolders -Order FolderStructure
+    }
+    It 'should complete successfully' {
+        $result | Should Be $true
+    }
+    It 'should jornal to the default table' {
+        Assert-Jornal '01-table-good.sql','03-data-good.sql','05-data-good.sql','02\04-data-good.sql','04\02-data-good.sql' '_SchemaVersions'
     }
     AfterAll {
         Remove-Datbase
@@ -104,26 +186,26 @@ Describe 'update database with different paths' {
     }
     function Assert-ScriptPathCompatibility {
         param($ScriptPath)
-        $result = Update-DatabaseWithDbUp -ConnectionString $connectionString -ScriptPath $scriptPath -SearchMode SearchAllDirectories
+        $result = Update-DatabaseWithDbUp -ConnectionString $connectionString -ScriptPath $scriptPath -SearchMode SearchAllFolders
         $result | Should Be $true
-        Assert-Jornal '01-table-good.sql','02\05-data-good.sql','03\04-data-good.sql','04\03-data-good.sql','05\02-data-good.sql' '_SchemaVersions'
+        Assert-Jornal '01-table-good.sql','04\02-data-good.sql','03-data-good.sql','02\04-data-good.sql','05-data-good.sql' '_SchemaVersions'
     }
-    Describe 'without trailing backlash' {
+    Context 'without trailing backslash' {
         It 'should work' {
             Assert-ScriptPathCompatibility "$here\sql\hierarchy"
         }
     }
-    Describe 'with trailing backlash' {
+    Context 'with trailing backslash' {
         It 'should work' {
             Assert-ScriptPathCompatibility "$here\sql\hierarchy\"
         }
     }
-    Describe 'without trailing slash' {
+    Context 'without trailing slash' {
         It 'should work' {
             Assert-ScriptPathCompatibility ("$here\sql\hierarchy".Replace('\','/'))
         }
     }
-    Describe 'with trailing slash' {
+    Context 'with trailing slash' {
         It 'should work' {
             Assert-ScriptPathCompatibility ("$here\sql\hierarchy\".Replace('\','/'))
         }
@@ -231,7 +313,7 @@ Describe 'logging with script output' {
         $logFilePath | Should Contain 'MyPrint'
     }
     It 'should not contain any empty rows' {
-        Get-Content $logFilePath | ForEach-Object{ [string]::IsNullOrWhiteSpace($_) | Should Be $false }
+        Get-Content $logFilePath | ForEach-Object { [string]::IsNullOrWhiteSpace($_) | Should Be $false }
     }
     It 'should log errors' {
         $logFilePath | Should Contain ([regex]::Escape('##vso[task.logissue type=error;]System.Data.SqlClient.SqlException (0x80131904): MyError'))

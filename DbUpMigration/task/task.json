@@ -11,8 +11,8 @@
     ],
     "author": "Johan Classon",
     "version": {
-        "Major": 0,
-        "Minor": 12,
+        "Major": 1,
+        "Minor": 0,
         "Patch": 0
     },
     "demands": [
@@ -20,8 +20,13 @@
     ],
     "groups": [
         {
-            "name": "advanced",
-            "displayName": "Advanced",
+            "name": "scriptSelection",
+            "displayName": "Script Selection",
+            "isExpanded": true
+        },
+        {
+            "name": "scriptExecution",
+            "displayName": "Script Execution",
             "isExpanded": false
         }
     ],
@@ -30,51 +35,51 @@
             "name": "ConnectionString",
             "type": "string",
             "label": "Connection String",
-            "defaultValue": "Server=$(dbup.server);Database=$(dbup.database);User ID=$(dbup.userId);Password=$(dbup.password);Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;",
+            "defaultValue": "Server=$(DbUp.Server);Database=$(DbUp.Database);User ID=$(DbUp.UserId);Password=$(DbUp.Password);Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;",
             "helpMarkDown": "The connection string to the database where the scripts should run on.",
             "required": true
         },
+
         {
             "name": "ScriptPath",
             "type": "filePath",
             "label": "Script Folder Path",
             "defaultValue": "",
             "required": true,
-            "helpMarkDown": "The folder path where all scripts which should be run are located."
+            "helpMarkDown": "The folder path where all scripts which should be run are located.",
+            "groupName": "scriptSelection"
         },
         {
-            "name": "LogScriptOutput",
+            "name": "IncludeSubfolders",
             "type": "boolean",
-            "label": "Log Script Output",
+            "label": "Include Subfolders",
             "defaultValue": false,
-            "helpMarkDown": "If information and warning logs raised from the SQL scripts should be visible in the log output.",
-            "groupName": "advanced"
+            "helpMarkDown": "If not set, only the scripts directly in the Script Folder Path will be executed. If set, scripts in subfolders will also be executed. Scripts in subfolders are journaled prefixed with their relative folder path.",
+            "groupName": "scriptSelection"
         },
         {
-            "name": "JournalToSqlTable",
-            "type": "boolean",
-            "label": "Journal To SQL Table",
-            "defaultValue": true,
-            "helpMarkDown": "If the scripts should be journaled in a SQL table. Not journaled scripts will be run each time.",
-            "groupName": "advanced"
-        },
-        {
-            "name": "JournalName",
-            "type": "string",
-            "label": "Journal Table Name",
-            "defaultValue": "_SchemaVersions",
-            "helpMarkDown": "The name of the journal table, if enabled.",
-            "required": true,
-            "groupName": "advanced"
+            "name": "Order",
+            "type": "pickList",
+            "options": {
+                "Filename": "Filename",
+                "FilePath": "File Path",
+                "FolderStructure": "Folder Structure"
+            },
+            "label": "Script Execution Order",
+            "defaultValue": "FilePath",
+            "helpMarkDown": "The order in which scripts are executed. If set to Filename, scripts can be organized in different folders while still controlling execution order by their filenames. If set to File Path, scripts are strictly sorted on their complete path. If set to Folder Structure, scripts are executed in the order of the file system provider, which means one folder at the time starting with the files in each folder and then working its way through each subfolder. All scripts are executed in ascending order.",
+            "visibleRule":  "IncludeSubfolders = true",
+            "groupName": "scriptSelection"
         },
         {
             "name": "ScriptFileFilter",
             "type": "string",
             "label": "Script File Filter",
             "defaultValue": ".*",
-            "helpMarkDown": "If only some of the scripts in the script folder path should be run. For example if jornaled scripts are named 201601011213-script_description.sql and the not journaled scripts are named everytime-script_description.sql, set the filet to ^everytime to target just the not journaled scripts.",
-            "groupName": "advanced"
+            "helpMarkDown": "If only some of the scripts in the script folder path should be run. For example, if journaled scripts are named 201601011213-script_description.sql and the not journaled scripts are named everytime-script_description.sql, set the filter to ^everytime to target just the not journaled scripts.",
+            "groupName": "scriptSelection"
         },
+
         {
             "name": "TransactionStrategy",
             "type": "pickList",
@@ -86,28 +91,50 @@
             "label": "Transaction Strategy",
             "defaultValue": "TransactionPerScript",
             "helpMarkDown": "Select No Transactions if you want to have manual control over the transactions through the content of the SQL scripts.",
-            "groupName": "advanced"
+            "groupName": "scriptExecution"
         },
         {
-            "name": "SearchTopDirectoryOnly",
+            "name": "JournalToSqlTable",
             "type": "boolean",
-            "label": "Search Top Directory Only",
+            "label": "Journal To SQL Table",
             "defaultValue": true,
-            "helpMarkDown": "If set, only the scripts directly in the Script Folder Path are executed. If not set, scripts in subdirectories are also executed. Scripts in subfolders are jornaled prefixed with their relative directory path.",
-            "groupName": "advanced"
+            "helpMarkDown": "If the scripts should be journaled in a SQL table. Not journaled scripts will be run each time.",
+            "groupName": "scriptExecution"
         },
         {
-            "name": "Order",
-            "type": "pickList",
-            "options": {
-                "Filename": "Filename",
-                "FilePath": "File Path"
-            },
-            "label": "Script Execution Order",
-            "defaultValue": "FilePath",
-            "helpMarkDown": "The order in which scripts are executed. If set to Filename, scripts can be organized in different folders while still controlling execution order by their filenames. If set to File Path, scripts are executed one folder at the time. All scripts are executed in ascending order.",
-            "visibleRule":  "SearchTopDirectoryOnly = false",
-            "groupName": "advanced"
+            "name": "JournalName",
+            "type": "string",
+            "label": "Journal Table Name",
+            "defaultValue": "_SchemaVersions",
+            "helpMarkDown": "The name of the journal table, if enabled.",
+            "required": true,
+            "visibleRule":  "JournalToSqlTable = true",
+            "groupName": "scriptExecution"
+        },
+        {
+            "name": "VariableSubstitution",
+            "type": "boolean",
+            "label": "Perform Variable Substitution",
+            "defaultValue": false,
+            "helpMarkDown": "If set, SQL variable substitution will be made with matching environment variables. For example, if the Variable Substitution Prefix is DBUP, the environment variable DBUP_MYNAME will match $MYNAME$ in the SQL scripts. If the prefix is empty, the environment variable MYNAME will match $MYNAME$ directly. Note that the casing of the variables must match, and that build and release variables are converted to uppercase as environment variables. For example, DbUp.MyName will be available as DBUP_MYNAME, and will correspond to the SQL variable $MYNAME$.",
+            "groupName": "scriptExecution"
+        },
+        {
+            "name": "VariableSubstitutionPrefix",
+            "type": "string",
+            "label": "Variable Substitution Prefix",
+            "defaultValue": "DbUp",
+            "helpMarkDown": "Filters what environment variables that is used in variable substitution. The prefix is removed from the matched variable substitution name. If the prefix is empty, then all of the available environment variables will be used in the SQL variable substitution matching. The filtering of environment variables are case insenitive.",
+            "visibleRule":  "VariableSubstitution = true",
+            "groupName": "scriptExecution"
+        },
+        {
+            "name": "LogScriptOutput",
+            "type": "boolean",
+            "label": "Include Script Output in Log",
+            "defaultValue": false,
+            "helpMarkDown": "If information and warning logs raised from the SQL scripts should be visible in the log output or not.",
+            "groupName": "scriptExecution"
         }
     ],
     "instanceNameFormat": "DbUp Migration",

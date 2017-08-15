@@ -41,7 +41,7 @@ Add-Type -Path $dllPath
 
 # Log output is lost after build task is run. This hack solves it.
 if (-not ([System.Management.Automation.PSTypeName]'VstsUpgradeLog').Type) {
-    $upgradeLogSourceCode = @"
+    Add-Type -TypeDefinition @"
 using DbUp.Engine.Output;
 
 public class VstsUpgradeLog : IUpgradeLog
@@ -69,13 +69,12 @@ public class VstsUpgradeLog : IUpgradeLog
         WriteHost("##" + "vso[task.logissue type=error;]" + string.Format(format, args));
     }
 }
-"@
-    Add-Type -TypeDefinition $upgradeLogSourceCode -Language CSharp -ReferencedAssemblies $dllPath
+"@ -Language CSharp -ReferencedAssemblies $dllPath
 }
 
 if (-not ([System.Management.Automation.PSTypeName]'FileSystemScriptProvider').Type) {
     # This is a FileSystemScriptProvider inspired of that is implemented in  DbUp 4.0, with added ordering feature.
-    $scriptProviderSourceCode = @"
+    Add-Type -TypeDefinition @"
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -87,7 +86,8 @@ using DbUp.Engine.Transactions;
 public enum FileSearchOrder
 {
     Filename = 0,
-    FilePath = 1
+    FilePath = 1,
+    FolderStructure = 2
 }
 
 public class FileSystemScriptOptions
@@ -136,6 +136,10 @@ public class FileSystemScriptProvider : IScriptProvider
         {
             infos = infos.OrderBy(i => i.Name);
         }
+        if (options.Order == FileSearchOrder.FilePath)
+        {
+            infos = infos.OrderBy(i => i.FullName);
+        }
         return infos.Select(i => SqlScriptFromFile(i)).ToArray();
     }
 
@@ -153,8 +157,7 @@ public class FileSystemScriptProvider : IScriptProvider
         return options.IncludeSubDirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
     }
 }
-"@
-    Add-Type -TypeDefinition $scriptProviderSourceCode -Language CSharp -ReferencedAssemblies $dllPath
+"@ -Language CSharp -ReferencedAssemblies $dllPath
 }
 
 $configFunc = {
@@ -180,10 +183,13 @@ function Update-DatabaseWithDbUp {
         [string]$JournalName = '_SchemaVersions',
         [ValidateSet('LogScriptOutput', 'Quiet')]
         [string]$Logging = 'Quiet',
-        [ValidateSet('SearchAllDirectories', 'SearchTopDirectoryOnly')]
-        [string]$SearchMode = 'SearchTopDirectoryOnly',
-        [ValidateSet('Filename','FilePath')]
-        [string]$Order = 'FilePath')
+        [ValidateSet('SearchAllFolders', 'SearchTopFolderOnly')]
+        [string]$SearchMode = 'SearchTopFolderOnly',
+        [ValidateSet('Filename', 'FilePath', 'FolderStructure')]
+        [string]$Order = 'Filename',
+        [bool]$VariableSubstitution = $false,
+        [string]$VariableSubstitutionPrefix = "DbUp"
+    )
 
     $filterFunc = {
         param([string]$file)
@@ -194,10 +200,13 @@ function Update-DatabaseWithDbUp {
     if ($Order -eq 'Filename') {
         $options.Order = 0
     }
-    else {
+    elseif ($Order -eq 'FilePath') {
         $options.Order = 1
     }
-    if ($SearchMode -eq 'SearchAllDirectories') {
+    else {
+        $options.Order = 2
+    }
+    if ($SearchMode -eq 'SearchAllFolders') {
         $options.IncludeSubDirectories = $true
     }
     $scriptProvider = New-Object FileSystemScriptProvider -ArgumentList $ScriptPath, $options
@@ -227,6 +236,15 @@ function Update-DatabaseWithDbUp {
         $dbUp = [SqlServerExtensions]::JournalToSqlTable($dbUp, 'dbo', $JournalName)
     }
     $dbUp.Configure($configFunc)
+    if ($VariableSubstitution) {
+        if (-not [string]::IsNullOrEmpty($VariableSubstitutionPrefix)) {
+            $VariableSubstitutionPrefix += '_'
+        }
+        Get-ChildItem "env:\$VariableSubstitutionPrefix*" | ForEach-Object {
+            $name = $_.Name.Substring($VariableSubstitutionPrefix.Length)
+            $dbUp = [StandardExtensions]::WithVariable($dbUp, $name, $_.Value);
+        }
+    }
     $result = $dbUp.Build().PerformUpgrade()
     if (!$result.Successful) {
         $errorMessage = ""
