@@ -60,6 +60,7 @@ Although DbUp supports many databases, this extension currently only works with 
 
 | When | Version | What |
 |------|---------|------|
+| 2018-02-01 | 1.0.1 | Fixed offline issue. |
 | 2017-08-15 | 1.0.0 | Added variable substitution feature, and fixed sorting issue. |
 | 2017-08-09 | 0.12.0 | Added scripts in subfolders-, and logging features. |
 | 2017-04-27 | 0.11.0 | Added configurable journal table name feature. |
