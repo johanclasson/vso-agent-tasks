@@ -50,7 +50,7 @@ You can configure two *DbUp Migration*-tasks. The first with *Journal To SQL Tab
 
 The *DbUp Migration*-task downloads the latest version of DbUp during its first execution. If you intend to use this task on a machine that has not got access to the Internet, you have to download the DbUp.dll manually and place it in the following path:
 
-`%TEMP%\DatabaseMigration\dbup.*\lib\net35\DbUp.dll`
+`%LOCALAPPDATA%\DatabaseMigration\dbup.*\lib\net35\DbUp.dll`
 
 ## Limitations
 
@@ -60,6 +60,7 @@ Although DbUp supports many databases, this extension currently only works with 
 
 | When | Version | What |
 |------|---------|------|
+| 2018-02-01 | 1.0.1 | Fixed offline issue. |
 | 2017-08-15 | 1.0.0 | Added variable substitution feature, and fixed sorting issue. |
 | 2017-08-09 | 0.12.0 | Added scripts in subfolders-, and logging features. |
 | 2017-04-27 | 0.11.0 | Added configurable journal table name feature. |

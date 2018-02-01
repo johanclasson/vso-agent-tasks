@@ -1,5 +1,5 @@
 function Get-TempDir {
-    return $env:TEMP
+    return $env:LOCALAPPDATA
 }
 
 function Install-DbUpAndGetDllPath {
