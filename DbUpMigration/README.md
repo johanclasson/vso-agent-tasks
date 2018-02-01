@@ -50,7 +50,7 @@ You can configure two *DbUp Migration*-tasks. The first with *Journal To SQL Tab
 
 The *DbUp Migration*-task downloads the latest version of DbUp during its first execution. If you intend to use this task on a machine that has not got access to the Internet, you have to download the DbUp.dll manually and place it in the following path:
 
-`%TEMP%\DatabaseMigration\dbup.*\lib\net35\DbUp.dll`
+`%LOCALAPPDATA%\DatabaseMigration\dbup.*\lib\net35\DbUp.dll`
 
 ## Limitations
 
