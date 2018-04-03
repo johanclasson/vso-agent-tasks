@@ -31,6 +31,7 @@ You will find the *DbUp Migration*-build and release task under the *deploy* cat
 | Include Subfolders | Controls if scripts in subfolders are executed or not. |
 | Script Execution Order | Select one of *Filename*, *File Path* and *Folder Structure*. |
 | Script File Filter | A regular expression used against the full path of the migration scripts to select which to run. |
+| Script Encoding | The encoding used to read script files from the file system. |
 | Transaction Strategy | Select one of *No Transactions*, *Transaction Per Script* and *Single Transaction*. |
 | Journal To SQL Table | If set, each migration script will only be run once. |
 | Journal Table Name | The name of the table where the journal of the already run scripts are stored. |
@@ -60,6 +61,7 @@ Although DbUp supports many databases, this extension currently only works with 
 
 | When | Version | What |
 |------|---------|------|
+| 2018-04-03 | 1.1.2 | Added encoding selection feature. |
 | 2018-02-01 | 1.0.1 | Fixed offline issue. |
 | 2017-08-15 | 1.0.0 | Added variable substitution feature, and fixed sorting issue. |
 | 2017-08-09 | 0.12.0 | Added scripts in subfolders-, and logging features. |
