@@ -3,6 +3,7 @@ param([string]$ConnectionString,
       [string]$JournalToSqlTable,
       [string]$JournalName,
       [string]$ScriptFileFilter,
+      [string]$ScriptEncoding,
       [string]$TransactionStrategy,
       [string]$LogScriptOutput,
       [string]$IncludeSubfolders,
@@ -23,9 +24,10 @@ if ($IncludeSubfolders -eq [bool]::TrueString) {
     $searchMode = 'SearchAllFolders'
 }
 $variableSubstitutionValue = $VariableSubstitution -eq [bool]::TrueString
+$encoding = $ScriptEncoding.Split("-")[1]
 
 . .\Update-DatabaseWithDbUp.ps1 
-$success = Update-DatabaseWithDbUp -ConnectionString $ConnectionString -ScriptPath $ScriptPath -Journal $journal -JournalName $JournalName -Filter $ScriptFileFilter -TransactionStrategy $TransactionStrategy -Logging $logging -SearchMode $searchMode -Order $Order -VariableSubstitution $variableSubstitutionValue -VariableSubstitutionPrefix $VariableSubstitutionPrefix
+$success = Update-DatabaseWithDbUp -ConnectionString $ConnectionString -ScriptPath $ScriptPath -Journal $journal -JournalName $JournalName -Filter $ScriptFileFilter -Encoding $encoding -TransactionStrategy $TransactionStrategy -Logging $logging -SearchMode $searchMode -Order $Order -VariableSubstitution $variableSubstitutionValue -VariableSubstitutionPrefix $VariableSubstitutionPrefix
 if (-not $success) {
     exit -1
 }

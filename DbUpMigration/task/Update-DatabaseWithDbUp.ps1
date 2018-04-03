@@ -178,6 +178,7 @@ function Update-DatabaseWithDbUp {
         [string]$ScriptPath = '.',
         [ValidateSet('NullJournal', 'SqlTable')][string]$Journal = 'SqlTable',
         [string]$Filter = '.*',
+        [string]$Encoding = "Default",
         [ValidateSet('NoTransactions', 'TransactionPerScript', 'SingleTransaction')]
         [string]$TransactionStrategy = 'TransactionPerScript',
         [string]$JournalName = '_SchemaVersions',
@@ -208,6 +209,9 @@ function Update-DatabaseWithDbUp {
     }
     if ($SearchMode -eq 'SearchAllFolders') {
         $options.IncludeSubDirectories = $true
+    }
+    if ($Encoding -ne 'Default') {
+        $options.Encoding = [System.Text.Encoding]::GetEncoding([int]::Parse($Encoding))
     }
     $scriptProvider = New-Object FileSystemScriptProvider -ArgumentList $ScriptPath, $options
 
