@@ -23,7 +23,7 @@ function Install-DbUpAndGetDllPath {
                 $nuget = ".\nuget.exe"
             }
 
-            & $nuget install dbup | Out-Null
+            & $nuget install dbup -version 3.3.5 | Out-Null
 
             if (Test-Path .\nuget.exe) {
                 Remove-Item .\nuget.exe

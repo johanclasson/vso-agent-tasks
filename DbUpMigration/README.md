@@ -61,6 +61,7 @@ Although DbUp supports many databases, this extension currently only works with 
 
 | When | Version | What |
 |------|---------|------|
+| 2018-04-16 | 1.1.3 | Set DbUp version to 3.3.5 |
 | 2018-04-03 | 1.1.2 | Added encoding selection feature. |
 | 2018-02-01 | 1.0.1 | Fixed offline issue. |
 | 2017-08-15 | 1.0.0 | Added variable substitution feature, and fixed sorting issue. |
