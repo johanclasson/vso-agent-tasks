@@ -2,42 +2,23 @@ function Get-TempDir {
     return $env:LOCALAPPDATA
 }
 
-function Install-DbUpAndGetDllPath {
+function Get-DllPaths {
     $workingDir = Join-Path (Get-TempDir) 'DatabaseMigration'
     $dllFilePattern = Join-Path $workingDir 'dbup.*\lib\net35\DbUp.dll'
-
-    if (-not (Test-Path $workingDir)) {
-        New-Item $workingDir -ItemType Directory -Force | Out-Null
+    $paths = @()
+    if ((Test-Path $dllFilePattern)) {
+        $paths += Resolve-Path $dllFilePattern | Select-Object -ExpandProperty Path -First 1
     }
-
-    if (-not (Test-Path $dllFilePattern)) {
-        $oldLocation = Get-Location
-        try {
-            Set-Location $workingDir
-            
-            # Check if nuget.exe is already in the path and use that
-            $nuget = Get-Command "nuget.exe" -ErrorAction SilentlyContinue
-            if ($nuget -eq $null) {
-                # nuget.exe not in path, download it
-                Invoke-WebRequest https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -OutFile nuget.exe -UseBasicParsing
-                $nuget = ".\nuget.exe"
-            }
-
-            & $nuget install dbup -version 3.3.5 | Out-Null
-
-            if (Test-Path .\nuget.exe) {
-                Remove-Item .\nuget.exe
-            }
-        }
-        finally {
-            Set-Location $oldLocation
-        }
+    else {
+        $paths += Join-Path $PSScriptRoot 'lib\dbup.3.3.5\lib\net35\DbUp.dll'
     }
-    return Resolve-Path $dllFilePattern | Select-Object -ExpandProperty Path -First 1
+    return $paths
 }
 
-$dllPath = Install-DbUpAndGetDllPath
-Add-Type -Path $dllPath
+$dllPaths = @(Get-DllPaths)
+$dllPaths | ForEach-Object {
+    Add-Type -Path $_
+}
 
 # Log output is lost after build task is run. This hack solves it.
 if (-not ([System.Management.Automation.PSTypeName]'VstsUpgradeLog').Type) {
@@ -69,7 +50,7 @@ public class VstsUpgradeLog : IUpgradeLog
         WriteHost("##" + "vso[task.logissue type=error;]" + string.Format(format, args));
     }
 }
-"@ -Language CSharp -ReferencedAssemblies $dllPath
+"@ -Language CSharp -ReferencedAssemblies $dllPaths
 }
 
 if (-not ([System.Management.Automation.PSTypeName]'FileSystemScriptProvider').Type) {
@@ -157,7 +138,7 @@ public class FileSystemScriptProvider : IScriptProvider
         return options.IncludeSubDirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
     }
 }
-"@ -Language CSharp -ReferencedAssemblies $dllPath
+"@ -Language CSharp -ReferencedAssemblies $dllPaths
 }
 
 $configFunc = {

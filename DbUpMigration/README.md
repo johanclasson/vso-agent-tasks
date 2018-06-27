@@ -47,9 +47,9 @@ You can configure two *DbUp Migration*-tasks. The first with *Journal To SQL Tab
 
 *Since stored procedures do not keep data, it is convenient to let them be recreated during each deploy. That way you can update their scripts instead of having to add new with slightly modified content.* 
 
-## Offline Scenarios
+## Custom DbUp Scenarios
 
-The *DbUp Migration*-task downloads the latest version of DbUp during its first execution. If you intend to use this task on a machine that has not got access to the Internet, you have to download the DbUp.dll manually and place it in the following path:
+The *DbUp Migration*-task brings its own DbUp.dll. If you intend to use the task with a custom version, you can place it in the following path:
 
 `%LOCALAPPDATA%\DatabaseMigration\dbup.*\lib\net35\DbUp.dll`
 
@@ -61,7 +61,8 @@ Although DbUp supports many databases, this extension currently only works with 
 
 | When | Version | What |
 |------|---------|------|
-| 2018-04-16 | 1.1.3 | Set DbUp version to 3.3.5 |
+| 2018-06-26 | 1.1.4 | Removed use of NuGet and bundled DbUp with task. |
+| 2018-04-16 | 1.1.3 | Set DbUp version to 3.3.5. |
 | 2018-04-03 | 1.1.2 | Added encoding selection feature. |
 | 2018-02-01 | 1.0.1 | Fixed offline issue. |
 | 2017-08-15 | 1.0.0 | Added variable substitution feature, and fixed sorting issue. |

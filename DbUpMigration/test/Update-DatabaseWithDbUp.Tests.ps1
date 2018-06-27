@@ -2,8 +2,11 @@
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 . "$here\..\task\$sut"
 
+# sqllocaldb c UpdateDatabaseWithDbUpTests | Out-Null
+
+$dbInstance = '(localdb)\UpdateDatabaseWithDbUpTests'
 $databasename = 'UpdateDatabaseWithDbUpTests'
-$connectionString = "Server=.;Database=$databasename;Trusted_Connection=True;"
+$connectionString = "Server=$dbInstance;Database=$databasename;Integrated Security=true"
 $logFilePath = "TestDrive:\Log.txt"
 
 function New-Database {
@@ -14,8 +17,8 @@ function New-Database {
 }
 
 function Remove-Datbase {
-    Invoke-Sqlcmd -ServerInstance . -Database 'Master' -Query "alter database [$databasename] set single_user with rollback immediate"
-    Invoke-Sqlcmd -ServerInstance . -Database 'Master' -Query "drop database [$databasename]"
+    Invoke-Sqlcmd -ServerInstance $dbInstance -Database 'Master' -Query "alter database [$databasename] set single_user with rollback immediate"
+    Invoke-Sqlcmd -ServerInstance $dbInstance -Database 'Master' -Query "drop database [$databasename]"
 }
 
 function Assert-Data {
@@ -40,7 +43,7 @@ function Assert-Jornal {
 
 function Invoke-TestSql {
     param($Query)
-    return Invoke-Sqlcmd -ServerInstance . -Database $databasename -Query $Query
+    return Invoke-Sqlcmd -ServerInstance $dbInstance -Database $databasename -Query $Query
 }
 
 function Write-LogContentToHost {
@@ -358,42 +361,29 @@ Describe 'long running scripts' -Tag 'LongRunning' {
     }
 }
 
-Describe 'installing DbUp' -Tag 'LongRunning' {
+Describe 'getting DbUp Dll path when not present in temp dir' {
     BeforeAll {
-        $nuget = Get-Command "nuget.exe" -ErrorAction SilentlyContinue
-        $nuget | Should Be $null # To run these tests, you are not allowed to have nuget.exe in your path.
         Mock Get-TempDir { return 'TestDrive:\Temp' }
-        $oldPath = $env:Path
+        $paths = @(Get-DllPaths)
     }
-    Describe 'when NuGet is not present' {
-        BeforeAll {
-            $path = Install-DbUpAndGetDllPath
-        }
-        It 'should install DbUp' {
-            $path.EndsWith('\DbUp.dll') | Should Be $true
-        }
-        It 'should remove the downloaded nuget.exe' {
-            Test-Path 'TestDrive:\Temp\DatabaseMigration\nuget.exe' | Should Be $false
-        }
+    It 'should get bundled DbUp' {
+        $paths.Length | Should Be 1
+        $paths[0] | Should Not Be $null
+        $paths[0].EndsWith('\DbUp.dll') | Should Be $true
+        $paths[0].StartsWith('TestDrive:\Temp') | Should Be $false
     }
-    Describe 'when NuGet is present in PATH' {
-        BeforeAll {
-            $localNugetDirPath = "$TestDrive\NuGet"
-            New-Item $localNugetDirPath -Type Directory | Out-Null
-            $localNugetPath = Join-Path $localNugetDirPath 'nuget.exe'
-            Invoke-WebRequest https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -OutFile $localNugetPath -UseBasicParsing
-            $env:Path = "$($env:Path)$localNugetDirPath;"
-            Mock Invoke-WebRequest { throw 'Invoke-WebRequest should not be called!' }
-            $path = Install-DbUpAndGetDllPath
-        }
-        It 'should install DbUp' {
-            $path.EndsWith('\DbUp.dll') | Should Be $true
-        }
-        It 'should not download NuGet' {
-            Assert-MockCalled Invoke-WebRequest -Times 0 -Exactly
-        }
+}
+
+Describe 'getting DbUp Dll path when present in temp dir' {
+    BeforeAll {
+        Mock Get-TempDir { return 'TestDrive:\Temp' }
+        New-Item TestDrive:\Temp\DatabaseMigration\dbup.3.8\lib\net35\DbUp.dll -Force
+        $paths = @(Get-DllPaths)
     }
-    AfterAll {
-        $env:Path = $oldPath
+    It 'should get external DbUp' {
+        $paths.Length | Should Be 1
+        $paths[0] | Should Not Be $null
+        $paths[0].EndsWith('\DbUp.dll') | Should Be $true
+        $paths[0].StartsWith('TestDrive:\Temp') | Should Be $true
     }
 }
