@@ -227,11 +227,11 @@ function Update-DatabaseWithDbUp {
         }
         Get-ChildItem "env:\$VariableSubstitutionPrefix*" | ForEach-Object {
             $name = $_.Name.Substring($VariableSubstitutionPrefix.Length)
-            $dbUp = [StandardExtensions]::WithVariable($dbUp, $name, $_.Value);
+            $dbUp = [StandardExtensions]::WithVariable($dbUp, $name, $_.Value)
         }
     }
     else {
-        $dbUp = [StandardExtensions]::WithVariablesDisabled($dbUp);
+        $dbUp = [StandardExtensions]::WithVariablesDisabled($dbUp)
     }
     $result = $dbUp.Build().PerformUpgrade()
     if (!$result.Successful) {

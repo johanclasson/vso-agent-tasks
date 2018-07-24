@@ -135,6 +135,29 @@ Describe 'update database with variable substitution' {
     }
 }
 
+Describe 'update database without variable substitution' {
+    BeforeAll {
+        New-Database
+    }
+    function Invoke-Upgrade {
+        Clear-LogContent # This is to fix some fishy behavior that the TestDrive is not reset for each context
+        return Update-DatabaseWithDbUp -ConnectionString $connectionString -ScriptPath "$here\sql\flat" -Filter 'variable' -VariableSubstitution $false -Logging LogScriptOutput -VariableSubstitutionPrefix '' -Journal NullJournal
+    }
+    Context 'without environment variable' {
+        BeforeAll {
+            $result = Invoke-Upgrade
+        }
+        It 'should complete successfully' {
+            $result | Should Be $true
+        }
+        It 'should log print statements' {
+            $logFilePath | Should Contain 'TESTVARIABLE'
+        }
+    }
+    AfterAll {
+        Remove-Datbase
+    }
+}
 Describe 'update database searching all folders ordering by filename' {
     BeforeAll {
         New-Database
