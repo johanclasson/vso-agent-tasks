@@ -230,6 +230,9 @@ function Update-DatabaseWithDbUp {
             $dbUp = [StandardExtensions]::WithVariable($dbUp, $name, $_.Value);
         }
     }
+    else {
+        $dbUp = [StandardExtensions]::WithVariablesDisabled($dbUp);
+    }
     $result = $dbUp.Build().PerformUpgrade()
     if (!$result.Successful) {
         $errorMessage = ""
