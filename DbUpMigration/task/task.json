@@ -12,8 +12,8 @@
     "author": "Johan Classon",
     "version": {
         "Major": 1,
-        "Minor": 1,
-        "Patch": 4
+        "Minor": 2,
+        "Patch": 0
     },
     "demands": [
         "DotNetFramework"
@@ -76,7 +76,7 @@
             "type": "string",
             "label": "Script File Filter",
             "defaultValue": ".*",
-            "helpMarkDown": "A regular expression that decides if only some of the scripts in the script folder path should be run. For example, if journaled scripts are named 201601011213-script_description.sql and the not journaled scripts are named everytime-script_description.sql, set the filter to ^everytime to target just the not journaled scripts.",
+            "helpMarkDown": "A regular expression used against the full path of the migration scripts to select which to run. For example, if journaled scripts are named 201601011213-script_description.sql and the not journaled scripts are named everytime-script_description.sql, set the filter to `\\d{12}` to target the journaled scripts, and set the filter to `everytime` to target just the not journaled scripts.",
             "groupName": "scriptSelection"
         },
         {
