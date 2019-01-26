@@ -4,13 +4,17 @@ function Get-TempDir {
 
 function Get-DllPaths {
     $workingDir = Join-Path (Get-TempDir) 'DatabaseMigration'
-    $dllFilePattern = Join-Path $workingDir 'dbup.*\lib\net35\DbUp.dll'
+    $pattern = 'dbup*\lib\net35\*.dll'
+    $depsPattern = 'System.Data.SqlClient*\lib\netstandard1.3\System.Data.SqlClient.dll'
     $paths = @()
-    if ((Test-Path $dllFilePattern)) {
-        $paths += Resolve-Path $dllFilePattern | Select-Object -ExpandProperty Path -First 1
+
+    if ((Test-Path (Join-Path $workingDir $pattern))) {
+        $paths += Get-Item (Join-Path $workingDir $pattern) | Select-Object -ExpandProperty FullName
+        $paths += Resolve-Path (Join-Path $workingDir $depsPattern) | Select-Object -ExpandProperty Path
     }
     else {
-        $paths += Join-Path $PSScriptRoot 'lib\dbup.3.3.5\lib\net35\DbUp.dll'
+        $paths += Get-Item (Join-Path $PSScriptRoot "lib\$pattern") | Select-Object -ExpandProperty FullName
+        $paths += Resolve-Path (Join-Path $PSScriptRoot "lib\$depsPattern") | Select-Object -ExpandProperty Path
     }
     return $paths
 }
@@ -63,6 +67,7 @@ using System.Linq;
 using System.Text;
 using DbUp.Engine;
 using DbUp.Engine.Transactions;
+using DbUp.Support;
 
 public enum FileSearchOrder
 {
@@ -121,7 +126,12 @@ public class FileSystemScriptProvider : IScriptProvider
         {
             infos = infos.OrderBy(i => i.FullName);
         }
-        return infos.Select(i => SqlScriptFromFile(i)).ToArray();
+        var scripts = infos.Select(i => SqlScriptFromFile(i)).ToArray();
+        for(int i = 0;i < scripts.Length; ++i)
+        {
+            scripts[i].SqlScriptOptions.RunGroupOrder = i;
+        }
+        return scripts;
     }
 
     private SqlScript SqlScriptFromFile(FileInfo file)
@@ -129,7 +139,12 @@ public class FileSystemScriptProvider : IScriptProvider
         using (FileStream fileStream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
         {
             var fileName = file.FullName.Substring(directoryPath.Length + 1);
-            return SqlScript.FromStream(fileName, fileStream, encoding);
+            var options = new SqlScriptOptions()
+            {
+                ScriptType = ScriptType.RunOnce,
+                RunGroupOrder = 0
+            };
+            return SqlScript.FromStream(fileName, fileStream, encoding, options);
         }
     }
 
