@@ -2,15 +2,21 @@ function Get-TempDir {
     return $env:LOCALAPPDATA
 }
 
+function Get-ResolvedPaths {
+    param($rootDir)
+    $patterns = @();
+    $patterns += 'dbup-core*\lib\net35\*.dll'
+    $patterns += 'dbup-sqlserver*\lib\net35\*.dll'
+    $patterns += 'System.Data.SqlClient.*\lib\netstandard1.3\*.dll'
+    $patterns | ForEach-Object { Resolve-Path (Join-Path $rootDir $_) -ErrorAction SilentlyContinue } | Select-Object -ExpandProperty Path
+}
+
 function Get-DllPaths {
-    $workingDir = Join-Path (Get-TempDir) 'DatabaseMigration'
-    $dllFilePattern = Join-Path $workingDir 'dbup.*\lib\net35\DbUp.dll'
-    $paths = @()
-    if ((Test-Path $dllFilePattern)) {
-        $paths += Resolve-Path $dllFilePattern | Select-Object -ExpandProperty Path -First 1
-    }
-    else {
-        $paths += Join-Path $PSScriptRoot 'lib\dbup.3.3.5\lib\net35\DbUp.dll'
+    $tempDir = Join-Path (Get-TempDir) 'DatabaseMigration'
+    $paths = @(Get-ResolvedPaths $tempDir)
+    if ($paths.Length -ne 3) {
+        $localDir = Join-Path $PSScriptRoot 'lib'
+        $paths = @(Get-ResolvedPaths $localDir)
     }
     return $paths
 }
@@ -63,6 +69,7 @@ using System.Linq;
 using System.Text;
 using DbUp.Engine;
 using DbUp.Engine.Transactions;
+using DbUp.Support;
 
 public enum FileSearchOrder
 {
@@ -90,6 +97,7 @@ public class FileSystemScriptProvider : IScriptProvider
     private readonly Func<string, bool> filter;
     private readonly Encoding encoding;
     private FileSystemScriptOptions options;
+    private int nextRunGroupOrder = 1;
 
     public FileSystemScriptProvider(string directoryPath):this(directoryPath, new FileSystemScriptOptions())
     {
@@ -129,7 +137,12 @@ public class FileSystemScriptProvider : IScriptProvider
         using (FileStream fileStream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
         {
             var fileName = file.FullName.Substring(directoryPath.Length + 1);
-            return SqlScript.FromStream(fileName, fileStream, encoding);
+            var options = new SqlScriptOptions()
+            {
+                ScriptType = ScriptType.RunOnce,
+                RunGroupOrder = this.nextRunGroupOrder++
+            };
+            return SqlScript.FromStream(fileName, fileStream, encoding, options);
         }
     }
 

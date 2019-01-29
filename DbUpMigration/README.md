@@ -49,9 +49,11 @@ You can configure two *DbUp Migration*-tasks. The first with *Journal To SQL Tab
 
 ## Custom DbUp Scenarios
 
-The *DbUp Migration*-task brings its own DbUp.dll. If you intend to use the task with a custom version, you can place it in the following path:
+The *DbUp Migration*-task brings its own DbUp-dlls. If you intend to use the task with a custom version, you can place its dlls in the following paths:
 
-`%LOCALAPPDATA%\DatabaseMigration\dbup.*\lib\net35\DbUp.dll`
+* `%LOCALAPPDATA%\DatabaseMigration\dbup-core.*\lib\net35\dbup-core.dll`
+* `%LOCALAPPDATA%\DatabaseMigration\dbup-sqlserver.*\lib\net35\dbup-sqlserver.dll`
+* `%LOCALAPPDATA%\DatabaseMigration\System.Data.SqlClient.*\lib\netstandard1.3\System.Data.SqlClient.dll`
 
 ## Limitations
 
@@ -61,6 +63,7 @@ Although DbUp supports many databases, this extension currently only works with 
 
 | When | Version | What |
 |------|---------|------|
+| 2019-01-29 | 1.3.0 | Updated DbUp to 4.2.0. |
 | 2018-07-24 | 1.2.0 | Disable DbUp variables when skipping variable substitution. |
 | 2018-06-26 | 1.1.4 | Removed use of NuGet and bundled DbUp with task. |
 | 2018-04-16 | 1.1.3 | Set DbUp version to 3.3.5. |

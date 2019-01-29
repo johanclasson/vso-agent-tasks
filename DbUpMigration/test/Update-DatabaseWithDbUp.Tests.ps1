@@ -390,23 +390,37 @@ Describe 'getting DbUp Dll path when not present in temp dir' {
         $paths = @(Get-DllPaths)
     }
     It 'should get bundled DbUp' {
-        $paths.Length | Should Be 1
+        $paths.Length | Should Be 3
         $paths[0] | Should Not Be $null
-        $paths[0].EndsWith('\DbUp.dll') | Should Be $true
-        $paths[0].StartsWith('TestDrive:\Temp') | Should Be $false
-    }
+        $paths[1] | Should Not Be $null
+        $paths[2] | Should Not Be $null
+        $paths[0].EndsWith('\dbup-core.dll') | Should Be $true
+        $paths[1].EndsWith('\dbup-sqlserver.dll') | Should Be $true
+        $paths[2].EndsWith('\System.Data.SqlClient.dll') | Should Be $true
+        $paths[0].Contains('DatabaseMigration') | Should Be $false
+        $paths[1].Contains('DatabaseMigration') | Should Be $false
+        $paths[2].Contains('DatabaseMigration') | Should Be $false
+      }
 }
 
 Describe 'getting DbUp Dll path when present in temp dir' {
     BeforeAll {
         Mock Get-TempDir { return 'TestDrive:\Temp' }
-        New-Item TestDrive:\Temp\DatabaseMigration\dbup.3.8\lib\net35\DbUp.dll -Force
+        New-Item TestDrive:\Temp\DatabaseMigration\dbup-core.4.3.0\lib\net35\dbup-core.dll -Force
+        New-Item TestDrive:\Temp\DatabaseMigration\dbup-sqlserver.4.3.0\lib\net35\dbup-sqlserver.dll -Force
+        New-Item TestDrive:\Temp\DatabaseMigration\System.Data.SqlClient.4.6.0\lib\netstandard1.3\System.Data.SqlClient.dll -Force
         $paths = @(Get-DllPaths)
     }
     It 'should get external DbUp' {
-        $paths.Length | Should Be 1
-        $paths[0] | Should Not Be $null
-        $paths[0].EndsWith('\DbUp.dll') | Should Be $true
-        $paths[0].StartsWith('TestDrive:\Temp') | Should Be $true
-    }
+      $paths.Length | Should Be 3
+      $paths[0] | Should Not Be $null
+      $paths[1] | Should Not Be $null
+      $paths[2] | Should Not Be $null
+      $paths[0].EndsWith('\dbup-core.dll') | Should Be $true
+      $paths[1].EndsWith('\dbup-sqlserver.dll') | Should Be $true
+      $paths[2].EndsWith('\System.Data.SqlClient.dll') | Should Be $true
+      $paths[0].Contains('DatabaseMigration') | Should Be $true
+      $paths[1].Contains('DatabaseMigration') | Should Be $true
+      $paths[2].Contains('DatabaseMigration') | Should Be $true
+  }
 }
