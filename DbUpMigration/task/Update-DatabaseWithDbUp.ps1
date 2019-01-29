@@ -2,19 +2,21 @@ function Get-TempDir {
     return $env:LOCALAPPDATA
 }
 
-function Get-DllPaths {
-    $workingDir = Join-Path (Get-TempDir) 'DatabaseMigration'
-    $pattern = 'dbup*\lib\net35\*.dll'
-    $depsPattern = 'System.Data.SqlClient*\lib\netstandard1.3\System.Data.SqlClient.dll'
-    $paths = @()
+function Get-ResolvedPaths {
+    param($rootDir)
+    $patterns = @();
+    $patterns += 'dbup-core*\lib\net35\*.dll'
+    $patterns += 'dbup-sqlserver*\lib\net35\*.dll'
+    $patterns += 'System.Data.SqlClient.*\lib\netstandard1.3\*.dll'
+    $patterns | ForEach-Object { Resolve-Path (Join-Path $rootDir $_) -ErrorAction SilentlyContinue } | Select-Object -ExpandProperty Path
+}
 
-    if ((Test-Path (Join-Path $workingDir $pattern))) {
-        $paths += Get-Item (Join-Path $workingDir $pattern) | Select-Object -ExpandProperty FullName
-        $paths += Resolve-Path (Join-Path $workingDir $depsPattern) | Select-Object -ExpandProperty Path
-    }
-    else {
-        $paths += Get-Item (Join-Path $PSScriptRoot "lib\$pattern") | Select-Object -ExpandProperty FullName
-        $paths += Resolve-Path (Join-Path $PSScriptRoot "lib\$depsPattern") | Select-Object -ExpandProperty Path
+function Get-DllPaths {
+    $tempDir = Join-Path (Get-TempDir) 'DatabaseMigration'
+    $paths = @(Get-ResolvedPaths $tempDir)
+    if ($paths.Length -ne 3) {
+        $localDir = Join-Path $PSScriptRoot 'lib'
+        $paths = @(Get-ResolvedPaths $localDir)
     }
     return $paths
 }
@@ -95,6 +97,7 @@ public class FileSystemScriptProvider : IScriptProvider
     private readonly Func<string, bool> filter;
     private readonly Encoding encoding;
     private FileSystemScriptOptions options;
+    private int nextRunGroupOrder = 1;
 
     public FileSystemScriptProvider(string directoryPath):this(directoryPath, new FileSystemScriptOptions())
     {
@@ -126,12 +129,7 @@ public class FileSystemScriptProvider : IScriptProvider
         {
             infos = infos.OrderBy(i => i.FullName);
         }
-        var scripts = infos.Select(i => SqlScriptFromFile(i)).ToArray();
-        for(int i = 0;i < scripts.Length; ++i)
-        {
-            scripts[i].SqlScriptOptions.RunGroupOrder = i;
-        }
-        return scripts;
+        return infos.Select(i => SqlScriptFromFile(i)).ToArray();
     }
 
     private SqlScript SqlScriptFromFile(FileInfo file)
@@ -142,7 +140,7 @@ public class FileSystemScriptProvider : IScriptProvider
             var options = new SqlScriptOptions()
             {
                 ScriptType = ScriptType.RunOnce,
-                RunGroupOrder = 0
+                RunGroupOrder = this.nextRunGroupOrder++
             };
             return SqlScript.FromStream(fileName, fileStream, encoding, options);
         }

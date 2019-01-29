@@ -393,10 +393,13 @@ Describe 'getting DbUp Dll path when not present in temp dir' {
         $paths.Length | Should Be 3
         $paths[0] | Should Not Be $null
         $paths[1] | Should Not Be $null
-        $paths[0].EndsWith('\dbup-core.dll') -or $paths[0].EndsWith('\dbup-sqlserver.dll') | Should Be $true
-        $paths[1].EndsWith('\dbup-core.dll') -or $paths[1].EndsWith('\dbup-sqlserver.dll') | Should Be $true
+        $paths[2] | Should Not Be $null
+        $paths[0].EndsWith('\dbup-core.dll') | Should Be $true
+        $paths[1].EndsWith('\dbup-sqlserver.dll') | Should Be $true
+        $paths[2].EndsWith('\System.Data.SqlClient.dll') | Should Be $true
         $paths[0].Contains('DatabaseMigration') | Should Be $false
         $paths[1].Contains('DatabaseMigration') | Should Be $false
+        $paths[2].Contains('DatabaseMigration') | Should Be $false
       }
 }
 
@@ -412,10 +415,12 @@ Describe 'getting DbUp Dll path when present in temp dir' {
       $paths.Length | Should Be 3
       $paths[0] | Should Not Be $null
       $paths[1] | Should Not Be $null
-      $paths[0].EndsWith('\dbup-core.dll') -or $paths[0].EndsWith('\dbup-sqlserver.dll') | Should Be $true
-      $paths[1].EndsWith('\dbup-core.dll') -or $paths[1].EndsWith('\dbup-sqlserver.dll') | Should Be $true
-
+      $paths[2] | Should Not Be $null
+      $paths[0].EndsWith('\dbup-core.dll') | Should Be $true
+      $paths[1].EndsWith('\dbup-sqlserver.dll') | Should Be $true
+      $paths[2].EndsWith('\System.Data.SqlClient.dll') | Should Be $true
       $paths[0].Contains('DatabaseMigration') | Should Be $true
       $paths[1].Contains('DatabaseMigration') | Should Be $true
+      $paths[2].Contains('DatabaseMigration') | Should Be $true
   }
 }
