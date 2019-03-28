@@ -175,7 +175,8 @@ function Update-DatabaseWithDbUp {
         [string]$Encoding = "Default",
         [ValidateSet('NoTransactions', 'TransactionPerScript', 'SingleTransaction')]
         [string]$TransactionStrategy = 'TransactionPerScript',
-        [string]$JournalName = '_SchemaVersions',
+        [string]$JournalSchemaName = 'dbo',
+        [string]$JournalTableName = '_SchemaVersions',
         [ValidateSet('LogScriptOutput', 'Quiet')]
         [string]$Logging = 'Quiet',
         [ValidateSet('SearchAllFolders', 'SearchTopFolderOnly')]
@@ -231,7 +232,7 @@ function Update-DatabaseWithDbUp {
         $dbUp = [StandardExtensions]::JournalTo($dbUp, (New-Object DbUp.Helpers.NullJournal))
     }
     else {
-        $dbUp = [SqlServerExtensions]::JournalToSqlTable($dbUp, 'dbo', $JournalName)
+        $dbUp = [SqlServerExtensions]::JournalToSqlTable($dbUp, $JournalSchemaName, $JournalTableName)
     }
     $dbUp.Configure($configFunc)
     if ($VariableSubstitution) {

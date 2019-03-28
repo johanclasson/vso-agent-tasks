@@ -68,7 +68,7 @@ Describe 'update database searching and filtering top folder only' {
         Assert-Persons 'John'
     }
     It 'should jornal to the default table' {
-        Assert-Jornal '02-table-good.sql','03-data-good.sql' '_SchemaVersions'
+        Assert-Jornal '02-table-good.sql','03-data-good.sql' 'dbo._SchemaVersions'
     }
     AfterAll {
         Remove-Datbase
@@ -167,7 +167,7 @@ Describe 'update database searching all folders ordering by filename' {
         $result | Should Be $true
     }
     It 'should jornal to the default table' {
-        Assert-Jornal '01-table-good.sql','04\02-data-good.sql','03-data-good.sql','02\04-data-good.sql','05-data-good.sql' '_SchemaVersions'
+        Assert-Jornal '01-table-good.sql','04\02-data-good.sql','03-data-good.sql','02\04-data-good.sql','05-data-good.sql' 'dbo._SchemaVersions'
     }
     AfterAll {
         Remove-Datbase
@@ -183,7 +183,7 @@ Describe 'update database searching all folders ordering by file path' {
         $result | Should Be $true
     }
     It 'should jornal to the default table' {
-        Assert-Jornal '01-table-good.sql','02\04-data-good.sql','03-data-good.sql','04\02-data-good.sql','05-data-good.sql' '_SchemaVersions'
+        Assert-Jornal '01-table-good.sql','02\04-data-good.sql','03-data-good.sql','04\02-data-good.sql','05-data-good.sql' 'dbo._SchemaVersions'
     }
     AfterAll {
         Remove-Datbase
@@ -199,7 +199,7 @@ Describe 'update database searching all folders ordering by folder structure' {
         $result | Should Be $true
     }
     It 'should jornal to the default table' {
-        Assert-Jornal '01-table-good.sql','03-data-good.sql','05-data-good.sql','02\04-data-good.sql','04\02-data-good.sql' '_SchemaVersions'
+        Assert-Jornal '01-table-good.sql','03-data-good.sql','05-data-good.sql','02\04-data-good.sql','04\02-data-good.sql' 'dbo._SchemaVersions'
     }
     AfterAll {
         Remove-Datbase
@@ -214,7 +214,7 @@ Describe 'update database with different paths' {
         param($ScriptPath)
         $result = Update-DatabaseWithDbUp -ConnectionString $connectionString -ScriptPath $scriptPath -SearchMode SearchAllFolders
         $result | Should Be $true
-        Assert-Jornal '01-table-good.sql','04\02-data-good.sql','03-data-good.sql','02\04-data-good.sql','05-data-good.sql' '_SchemaVersions'
+        Assert-Jornal '01-table-good.sql','04\02-data-good.sql','03-data-good.sql','02\04-data-good.sql','05-data-good.sql' 'dbo._SchemaVersions'
     }
     Context 'without trailing backslash' {
         It 'should work' {
@@ -253,7 +253,7 @@ Describe 'the transaction strategy transaction per script with bad data' {
         Assert-Persons 'John'
     }
     It 'should jornal the successful scripts' {
-        Assert-Jornal '02-table-good.sql', '03-data-good.sql' '_SchemaVersions'
+        Assert-Jornal '02-table-good.sql', '03-data-good.sql' 'dbo._SchemaVersions'
     }
     AfterAll {
         Remove-Datbase
@@ -272,7 +272,7 @@ Describe 'the transaction strategy no transactions with bad data' {
         Assert-Persons 'John','Doe'
     }
     It 'should jornal the successful scripts' {
-        Assert-Jornal '02-table-good.sql', '03-data-good.sql' '_SchemaVersions'
+        Assert-Jornal '02-table-good.sql', '03-data-good.sql' 'dbo._SchemaVersions'
     }
     AfterAll {
         Remove-Datbase
@@ -289,7 +289,7 @@ Describe 'the transaction strategy single transaction with bad data' {
         $result | Should Be $false
     }
     It 'should jornal the successful scripts' {
-        Assert-Jornal '01-nothing.sql' '_SchemaVersions'
+        Assert-Jornal '01-nothing.sql' 'dbo._SchemaVersions'
     }
     AfterAll {
         Remove-Datbase
@@ -299,10 +299,36 @@ Describe 'the transaction strategy single transaction with bad data' {
 Describe 'custom journal name' {
     BeforeAll {
         New-Database
-        $result = Update-DatabaseWithDbUp -ConnectionString $connectionString -ScriptPath "$here\sql\flat" -Filter 'good' -JournalName 'Migrations'
+        $result = Update-DatabaseWithDbUp -ConnectionString $connectionString -ScriptPath "$here\sql\flat" -Filter 'good' -JournalTableName 'Migrations'
     }
     It 'should jornal to the custom table' {
-        Assert-Jornal '02-table-good.sql','03-data-good.sql' 'Migrations'
+        Assert-Jornal '02-table-good.sql','03-data-good.sql' 'dbo.Migrations'
+    }
+    AfterAll {
+        Remove-Datbase
+    }
+}
+
+Describe 'custom journal schema name' {
+    BeforeAll {
+        New-Database
+        $result = Update-DatabaseWithDbUp -ConnectionString $connectionString -ScriptPath "$here\sql\flat" -Filter 'good' -JournalSchemaName 'test'
+    }
+    It 'should jornal to the default table in the custom schema' {
+        Assert-Jornal '02-table-good.sql','03-data-good.sql' 'test._SchemaVersions'
+    }
+    AfterAll {
+        Remove-Datbase
+    }
+}
+
+Describe 'custom journal schema and table name' {
+    BeforeAll {
+        New-Database
+        $result = Update-DatabaseWithDbUp -ConnectionString $connectionString -ScriptPath "$here\sql\flat" -Filter 'good' -JournalSchemaName 'test' -JournalTableName 'Migrations'
+    }
+    It 'should jornal to the custom table in the custom schema' {
+        Assert-Jornal '02-table-good.sql','03-data-good.sql' 'test.Migrations'
     }
     AfterAll {
         Remove-Datbase
@@ -320,7 +346,7 @@ Describe 'null journal' {
         Assert-Persons 'John','John'
     }
     It 'should jornal to the default table' {
-        Assert-Jornal '02-table-good.sql' '_SchemaVersions'
+        Assert-Jornal '02-table-good.sql' 'dbo._SchemaVersions'
     }
     AfterAll {
         Remove-Datbase

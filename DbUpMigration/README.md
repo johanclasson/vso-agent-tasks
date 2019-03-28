@@ -34,6 +34,7 @@ You will find the *DbUp Migration*-build and release task under the *deploy* cat
 | Script Encoding | The encoding used to read script files from the file system. |
 | Transaction Strategy | Select one of *No Transactions*, *Transaction Per Script* and *Single Transaction*. |
 | Journal To SQL Table | If set, each migration script will only be run once. |
+| Journal Schema Name | The name of the schema which the journal table belongs to. |
 | Journal Table Name | The name of the table where the journal of the already run scripts are stored. |
 | Perform Variable Substitution | If set, SQL variable substitution will be made with matching environment variables. |
 | Variable Substitution Prefix | Filters what environment variables that is used in variable substitution. |
@@ -63,6 +64,7 @@ Although DbUp supports many databases, this extension currently only works with 
 
 | When | Version | What |
 |------|---------|------|
+| 2019-03-28 | 1.4.0 | Added configurable journal schema name feature. |
 | 2019-01-29 | 1.3.0 | Updated DbUp to 4.2.0. |
 | 2018-07-24 | 1.2.0 | Disable DbUp variables when skipping variable substitution. |
 | 2018-06-26 | 1.1.4 | Removed use of NuGet and bundled DbUp with task. |
