@@ -1,7 +1,7 @@
 {
-  "id": "4182dbda-71db-4d18-89b3-75255b7802eb",
-  "name": "UpdateDatabaseWithDbUp",
-  "friendlyName": "DbUp Migration",
+  "id": "489c6802-7cf3-4fff-8e01-92bfcf68e9ef",
+  "name": "UpdateDatabaseWithDbUp-beta",
+  "friendlyName": "DbUp Migration-beta",
   "description": "Runs SQL Server change scripts, and only those which have not been run already.",
   "helpMarkDown": "[More Information](https://github.com/johanclasson/vso-agent-tasks)",
   "category": "Deploy",
@@ -13,7 +13,7 @@
   "version": {
     "Major": 2,
     "Minor": 1,
-    "Patch": 0
+    "Patch": 3
   },
   "demands": [
     "DotNetFramework"
