@@ -164,7 +164,23 @@ function Write-Information {
     param($message) Write-Host $message
 }
 
-[Action[string]]$infoDelegate = {param($message) Write-Information $message}
+function New-SchemaIfNotExists {
+    # Work around for https://github.com/DbUp/DbUp/issues/346
+    param($ConnectionString, $SchemaName)
+    if ($SchemaName -eq 'dbo') {
+        return
+    }
+    $query = "IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = N'$SchemaName') EXEC(N'CREATE SCHEMA [$SchemaName]')"
+    # PowerShell versions makes Invoke-Sqlcmd with -ConnectionString unreliable.
+    $connection = New-Object System.Data.SqlClient.SqlConnection -ArgumentList $ConnectionString
+    $connection.Open()
+    $cmd = New-Object System.Data.SqlClient.SqlCommand -ArgumentList $query, $connection
+    $cmd.ExecuteNonQuery()
+    $cmd.Dispose()
+    $connection.Dispose()
+}
+
+[Action[string]]$infoDelegate = { param($message) Write-Information $message }
 
 function Update-DatabaseWithDbUp {
     param(
@@ -232,6 +248,7 @@ function Update-DatabaseWithDbUp {
         $dbUp = [StandardExtensions]::JournalTo($dbUp, (New-Object DbUp.Helpers.NullJournal))
     }
     else {
+        New-SchemaIfNotExists -SchemaName $JournalSchemaName -ConnectionString $ConnectionString
         $dbUp = [SqlServerExtensions]::JournalToSqlTable($dbUp, $JournalSchemaName, $JournalTableName)
     }
     $dbUp.Configure($configFunc)
@@ -250,7 +267,7 @@ function Update-DatabaseWithDbUp {
     $result = $dbUp.Build().PerformUpgrade()
     if (!$result.Successful) {
         $errorMessage = ""
-        if ($result.Error -ne $null) {
+        if ($null -ne $result.Error) {
             $errorMessage = $result.Error.Message
         }
         Write-Information "##vso[task.logissue type=error;]Database migration failed. $errorMessage"

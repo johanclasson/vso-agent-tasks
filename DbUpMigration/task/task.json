@@ -1,35 +1,35 @@
 {
-    "id": "4182dbda-71db-4d18-89b3-75255b7802eb",
-    "name": "UpdateDatabaseWithDbUp",
-    "friendlyName": "DbUp Migration",
-    "description": "Runs SQL Server change scripts, and only those which have not been run already.",
-    "helpMarkDown": "[More Information](https://github.com/johanclasson/vso-agent-tasks)",
-    "category": "Deploy",
-    "visibility": [
-        "Build",
-        "Release"
-    ],
-    "author": "Johan Classon",
-    "version": {
-        "Major": 1,
-        "Minor": 3,
-        "Patch": 0
+  "id": "4182dbda-71db-4d18-89b3-75255b7802eb",
+  "name": "UpdateDatabaseWithDbUp",
+  "friendlyName": "DbUp Migration",
+  "description": "Runs SQL Server change scripts, and only those which have not been run already.",
+  "helpMarkDown": "[More Information](https://github.com/johanclasson/vso-agent-tasks)",
+  "category": "Deploy",
+  "visibility": [
+    "Build",
+    "Release"
+  ],
+  "author": "Johan Classon",
+  "version": {
+    "Major": 1,
+    "Minor": 3,
+    "Patch": 0
+  },
+  "demands": [
+    "DotNetFramework"
+  ],
+  "groups": [
+    {
+      "name": "scriptSelection",
+      "displayName": "Script Selection",
+      "isExpanded": true
     },
-    "demands": [
-        "DotNetFramework"
-    ],
-    "groups": [
-        {
-            "name": "scriptSelection",
-            "displayName": "Script Selection",
-            "isExpanded": true
-        },
-        {
-            "name": "scriptExecution",
-            "displayName": "Script Execution",
-            "isExpanded": false
-        }
-    ],
+    {
+      "name": "scriptExecution",
+      "displayName": "Script Execution",
+      "isExpanded": false
+    }
+  ],
   "inputs": [
     {
       "name": "ConnectionString",
@@ -39,7 +39,6 @@
       "helpMarkDown": "The connection string to the database where the scripts should run on.",
       "required": true
     },
-
     {
       "name": "ScriptPath",
       "type": "filePath",
@@ -68,7 +67,7 @@
       "label": "Script Execution Order",
       "defaultValue": "FilePath",
       "helpMarkDown": "The order in which scripts are executed. If set to Filename, scripts can be organized in different folders while still controlling execution order by their filenames. If set to File Path, scripts are strictly sorted on their complete path. If set to Folder Structure, scripts are executed in the order of the file system provider, which means one folder at the time starting with the files in each folder and then working its way through each subfolder. All scripts are executed in ascending order.",
-      "visibleRule":  "IncludeSubfolders = true",
+      "visibleRule": "IncludeSubfolders = true",
       "groupName": "scriptSelection"
     },
     {
@@ -230,7 +229,6 @@
       "helpMarkDown": "The encoding used to read script files from the file system. Default means using the operating system's current ANSI code page.",
       "groupName": "scriptSelection"
     },
-
     {
       "name": "TransactionStrategy",
       "type": "pickList",
@@ -257,7 +255,7 @@
       "type": "string",
       "label": "Journal Schema Name",
       "defaultValue": "dbo",
-      "helpMarkDown": "The name of the schema for the journal table, if enabled.",
+      "helpMarkDown": "The name of the schema for the journal table, if enabled. The specified schema will be created if it does not already exist.",
       "required": true,
       "visibleRule": "JournalToSqlTable = true",
       "groupName": "scriptExecution"
@@ -269,7 +267,7 @@
       "defaultValue": "_SchemaVersions",
       "helpMarkDown": "The name of the journal table, if enabled.",
       "required": true,
-      "visibleRule":  "JournalToSqlTable = true",
+      "visibleRule": "JournalToSqlTable = true",
       "groupName": "scriptExecution"
     },
     {
@@ -286,7 +284,7 @@
       "label": "Variable Substitution Prefix",
       "defaultValue": "DbUp",
       "helpMarkDown": "Filters what environment variables that is used in variable substitution. The prefix is removed from the matched variable substitution name. If the prefix is empty, then all of the available environment variables will be used in the SQL variable substitution matching. The filtering of environment variables are case insensitive.",
-      "visibleRule":  "VariableSubstitution = true",
+      "visibleRule": "VariableSubstitution = true",
       "groupName": "scriptExecution"
     },
     {
@@ -298,12 +296,12 @@
       "groupName": "scriptExecution"
     }
   ],
-    "instanceNameFormat": "DbUp Migration",
-    "execution": {
-        "PowerShell": {
-            "target": "$(currentDirectory)\\Update-Database.ps1",
-            "argumentFormat": "",
-            "workingDirectory": "$(currentDirectory)"
-        }
+  "instanceNameFormat": "DbUp Migration",
+  "execution": {
+    "PowerShell": {
+      "target": "$(currentDirectory)\\Update-Database.ps1",
+      "argumentFormat": "",
+      "workingDirectory": "$(currentDirectory)"
     }
+  }
 }
