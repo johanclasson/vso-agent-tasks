@@ -24,21 +24,21 @@ You will find the *DbUp Migration*-build and release task under the *deploy* cat
 
 ### Parameters
 
-| Name | Description |
-|------|-------------|
-| Connection String | The connection string used to connect to the database. |
-| Script Folder Path | The path where the migration scripts to run are. |
-| Include Subfolders | Controls if scripts in subfolders are executed or not. |
-| Script Execution Order | Select one of *Filename*, *File Path* and *Folder Structure*. |
-| Script File Filter | A regular expression used against the full path of the migration scripts to select which to run. |
-| Script Encoding | The encoding used to read script files from the file system. |
-| Transaction Strategy | Select one of *No Transactions*, *Transaction Per Script* and *Single Transaction*. |
-| Journal To SQL Table | If set, each migration script will only be run once. |
-| Journal Schema Name | The name of the schema which the journal table belongs to. |
-| Journal Table Name | The name of the table where the journal of the already run scripts are stored. |
-| Perform Variable Substitution | If set, SQL variable substitution will be made with matching environment variables. |
-| Variable Substitution Prefix | Filters what environment variables that is used in variable substitution. |
-| Log Script Output | If information and warning logs raised from the SQL scripts should be visible in the log output. |
+| Name                          | Description                                                                                      |
+| ----------------------------- | ------------------------------------------------------------------------------------------------ |
+| Connection String             | The connection string used to connect to the database.                                           |
+| Script Folder Path            | The path where the migration scripts to run are.                                                 |
+| Include Subfolders            | Controls if scripts in subfolders are executed or not.                                           |
+| Script Execution Order        | Select one of *Filename*, *File Path* and *Folder Structure*.                                    |
+| Script File Filter            | A regular expression used against the full path of the migration scripts to select which to run. |
+| Script Encoding               | The encoding used to read script files from the file system.                                     |
+| Transaction Strategy          | Select one of *No Transactions*, *Transaction Per Script* and *Single Transaction*.              |
+| Journal To SQL Table          | If set, each migration script will only be run once.                                             |
+| Journal Schema Name           | The name of the schema which the journal table belongs to.                                       |
+| Journal Table Name            | The name of the table where the journal of the already run scripts are stored.                   |
+| Perform Variable Substitution | If set, SQL variable substitution will be made with matching environment variables.              |
+| Variable Substitution Prefix  | Filters what environment variables that is used in variable substitution.                        |
+| Log Script Output             | If information and warning logs raised from the SQL scripts should be visible in the log output. |
 
 #### An Example
 
@@ -62,19 +62,19 @@ Although DbUp supports many databases, this extension currently only works with 
 
 ## Release Notes
 
-| When | Version | What |
-|------|---------|------|
-| 2019-03-28 | 1.4.0 | Added configurable journal schema name feature. |
-| 2019-01-29 | 1.3.0 | Updated DbUp to 4.2.0. |
-| 2018-07-24 | 1.2.0 | Disable DbUp variables when skipping variable substitution. |
-| 2018-06-26 | 1.1.4 | Removed use of NuGet and bundled DbUp with task. |
-| 2018-04-16 | 1.1.3 | Set DbUp version to 3.3.5. |
-| 2018-04-03 | 1.1.2 | Added encoding selection feature. |
-| 2018-02-01 | 1.0.1 | Fixed offline issue. |
-| 2017-08-15 | 1.0.0 | Added variable substitution feature, and fixed sorting issue. |
-| 2017-08-09 | 0.12.0 | Added scripts in subfolders-, and logging features. |
-| 2017-04-27 | 0.11.0 | Added configurable journal table name feature. |
-| 2017-04-13 | 0.10.7 | Fixed NuGet issue. |
-| 2016-11-07 | 0.10.5 | Fixed timeout issue. |
-| 2016-10-23 | 0.10.3 | Fixed log issue on TFS2015, and added transaction selection feature. |
-| 2016-10-20 | 0.9.0 | Initial release. |
+| When       | Version | What                                                                 |
+| ---------- | ------- | -------------------------------------------------------------------- |
+| 2019-03-28 | 2.1.0   | Added configurable journal schema name feature.                      |
+| 2019-01-29 | 2.0.0   | Updated DbUp to 4.2.0.                                               |
+| 2018-07-24 | 1.2.0   | Disable DbUp variables when skipping variable substitution.          |
+| 2018-06-26 | 1.1.4   | Removed use of NuGet and bundled DbUp with task.                     |
+| 2018-04-16 | 1.1.3   | Set DbUp version to 3.3.5.                                           |
+| 2018-04-03 | 1.1.2   | Added encoding selection feature.                                    |
+| 2018-02-01 | 1.0.1   | Fixed offline issue.                                                 |
+| 2017-08-15 | 1.0.0   | Added variable substitution feature, and fixed sorting issue.        |
+| 2017-08-09 | 0.12.0  | Added scripts in subfolders-, and logging features.                  |
+| 2017-04-27 | 0.11.0  | Added configurable journal table name feature.                       |
+| 2017-04-13 | 0.10.7  | Fixed NuGet issue.                                                   |
+| 2016-11-07 | 0.10.5  | Fixed timeout issue.                                                 |
+| 2016-10-23 | 0.10.3  | Fixed log issue on TFS2015, and added transaction selection feature. |
+| 2016-10-20 | 0.9.0   | Initial release.                                                     |
