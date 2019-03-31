@@ -1,7 +1,8 @@
 param([string]$ConnectionString,
       [string]$ScriptPath,
       [string]$JournalToSqlTable,
-      [string]$JournalName,
+      [string]$JournalSchemaName,
+      [string]$JournalTableName,
       [string]$ScriptFileFilter,
       [string]$ScriptEncoding,
       [string]$TransactionStrategy,
@@ -27,7 +28,7 @@ $variableSubstitutionValue = $VariableSubstitution -eq [bool]::TrueString
 $encoding = $ScriptEncoding.Split("-")[1]
 
 . .\Update-DatabaseWithDbUp.ps1 
-$success = Update-DatabaseWithDbUp -ConnectionString $ConnectionString -ScriptPath $ScriptPath -Journal $journal -JournalName $JournalName -Filter $ScriptFileFilter -Encoding $encoding -TransactionStrategy $TransactionStrategy -Logging $logging -SearchMode $searchMode -Order $Order -VariableSubstitution $variableSubstitutionValue -VariableSubstitutionPrefix $VariableSubstitutionPrefix
+$success = Update-DatabaseWithDbUp -ConnectionString $ConnectionString -ScriptPath $ScriptPath -Journal $journal -JournalSchemaName $JournalSchemaName -JournalTableName $JournalTableName -Filter $ScriptFileFilter -Encoding $encoding -TransactionStrategy $TransactionStrategy -Logging $logging -SearchMode $searchMode -Order $Order -VariableSubstitution $variableSubstitutionValue -VariableSubstitutionPrefix $VariableSubstitutionPrefix
 if (-not $success) {
     exit -1
 }
