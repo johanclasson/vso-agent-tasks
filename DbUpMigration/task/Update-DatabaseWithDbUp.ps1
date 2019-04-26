@@ -7,14 +7,13 @@ function Get-ResolvedPaths {
     $patterns = @();
     $patterns += 'dbup-core*\lib\net35\*.dll'
     $patterns += 'dbup-sqlserver*\lib\net35\*.dll'
-    $patterns += 'System.Data.SqlClient.*\lib\netstandard1.3\*.dll'
     $patterns | ForEach-Object { Resolve-Path (Join-Path $rootDir $_) -ErrorAction SilentlyContinue } | Select-Object -ExpandProperty Path
 }
 
 function Get-DllPaths {
     $tempDir = Join-Path (Get-TempDir) 'DatabaseMigration'
     $paths = @(Get-ResolvedPaths $tempDir)
-    if ($paths.Length -ne 3) {
+    if ($paths.Length -ne 2) { # 2 <= number of dlls
         $localDir = Join-Path $PSScriptRoot 'lib'
         $paths = @(Get-ResolvedPaths $localDir)
     }

@@ -54,7 +54,6 @@ The *DbUp Migration*-task brings its own DbUp-dlls. If you intend to use the tas
 
 * `%LOCALAPPDATA%\DatabaseMigration\dbup-core.*\lib\net35\dbup-core.dll`
 * `%LOCALAPPDATA%\DatabaseMigration\dbup-sqlserver.*\lib\net35\dbup-sqlserver.dll`
-* `%LOCALAPPDATA%\DatabaseMigration\System.Data.SqlClient.*\lib\netstandard1.3\System.Data.SqlClient.dll`
 
 ## Limitations
 
@@ -64,6 +63,7 @@ Although DbUp supports many databases, this extension currently only works with 
 
 | When       | Version | What                                                                 |
 | ---------- | ------- | -------------------------------------------------------------------- |
+| 2019-04-26 | 2.1.1   | Removed dependency on System.Data.SqlClient.dll.                     |
 | 2019-03-28 | 2.1.0   | Added configurable journal schema name feature.                      |
 | 2019-01-29 | 2.0.0   | Updated DbUp to 4.2.0.                                               |
 | 2018-07-24 | 1.2.0   | Disable DbUp variables when skipping variable substitution.          |

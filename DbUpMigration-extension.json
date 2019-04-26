@@ -2,7 +2,7 @@
     "manifestVersion": 1,
     "id": "UpdateDatabaseWithDbUp",
     "name": "DbUp Migration",
-    "version": "2.1.0",
+    "version": "2.1.1",
     "publisher": "johanclasson",
     "galleryFlags": [
         "Public"
