@@ -298,10 +298,8 @@
   ],
   "instanceNameFormat": "DbUp Migration",
   "execution": {
-    "PowerShell": {
-      "target": "$(currentDirectory)\\Update-Database.ps1",
-      "argumentFormat": "",
-      "workingDirectory": "$(currentDirectory)"
+    "PowerShell3": {
+      "target": "Update-Database.ps1"
     }
   }
 }
