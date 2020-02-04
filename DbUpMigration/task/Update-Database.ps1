@@ -3,14 +3,14 @@ $scriptPath = Get-VstsInput -Name ScriptPath -Require
 $journalToSqlTable = Get-VstsInput -Name JournalToSqlTable -AsBool
 $journalSchemaName = Get-VstsInput -Name JournalSchemaName -Require
 $journalTableName = Get-VstsInput -Name JournalTableName -Require
-$scriptFileFilter = Get-VstsInput -Name ScriptFileFilter -Require
+$scriptFileFilter = Get-VstsInput -Name ScriptFileFilter
 $scriptEncoding = Get-VstsInput -Name ScriptEncoding -Require
 $transactionStrategy = Get-VstsInput -Name TransactionStrategy -Require
 $logScriptOutput = Get-VstsInput -Name LogScriptOutput -AsBool
 $includeSubfolders = Get-VstsInput -Name IncludeSubfolders -AsBool
 $order = Get-VstsInput -Name Order -Require
 $variableSubstitution = Get-VstsInput -Name VariableSubstitution -AsBool
-$variableSubstitutionPrefix = Get-VstsInput -Name VariableSubstitutionPrefix -Require
+$variableSubstitutionPrefix = Get-VstsInput -Name VariableSubstitutionPrefix
 
 $journal = 'NullJournal'
 if ($journalToSqlTable) {
