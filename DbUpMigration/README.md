@@ -63,6 +63,7 @@ Although DbUp supports many databases, this extension currently only works with 
 
 | When       | Version | What                                                                 |
 | ---------- | ------- | -------------------------------------------------------------------- |
+| 2020-02-04 | 2.1.2   | Upgraded task execution handler to PowerShell3.                      |
 | 2019-04-26 | 2.1.1   | Removed dependency on System.Data.SqlClient.dll.                     |
 | 2019-03-28 | 2.1.0   | Added configurable journal schema name feature.                      |
 | 2019-01-29 | 2.0.0   | Updated DbUp to 4.2.0.                                               |

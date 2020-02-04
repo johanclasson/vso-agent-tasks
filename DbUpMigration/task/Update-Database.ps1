@@ -1,34 +1,46 @@
-param([string]$ConnectionString,
-      [string]$ScriptPath,
-      [string]$JournalToSqlTable,
-      [string]$JournalSchemaName,
-      [string]$JournalTableName,
-      [string]$ScriptFileFilter,
-      [string]$ScriptEncoding,
-      [string]$TransactionStrategy,
-      [string]$LogScriptOutput,
-      [string]$IncludeSubfolders,
-      [string]$Order,
-      [string]$VariableSubstitution,
-      [string]$VariableSubstitutionPrefix)
+$connectionString = Get-VstsInput -Name ConnectionString -Require
+$scriptPath = Get-VstsInput -Name ScriptPath -Require
+$journalToSqlTable = Get-VstsInput -Name JournalToSqlTable -AsBool
+$journalSchemaName = Get-VstsInput -Name JournalSchemaName -Require
+$journalTableName = Get-VstsInput -Name JournalTableName -Require
+$scriptFileFilter = Get-VstsInput -Name ScriptFileFilter -Require
+$scriptEncoding = Get-VstsInput -Name ScriptEncoding -Require
+$transactionStrategy = Get-VstsInput -Name TransactionStrategy -Require
+$logScriptOutput = Get-VstsInput -Name LogScriptOutput -AsBool
+$includeSubfolders = Get-VstsInput -Name IncludeSubfolders -AsBool
+$order = Get-VstsInput -Name Order -Require
+$variableSubstitution = Get-VstsInput -Name VariableSubstitution -AsBool
+$variableSubstitutionPrefix = Get-VstsInput -Name VariableSubstitutionPrefix -Require
 
 $journal = 'NullJournal'
-if ($JournalToSqlTable -eq [bool]::TrueString) {
+if ($journalToSqlTable) {
     $journal = 'SqlTable'
 }
 $logging = 'Quiet'
-if ($LogScriptOutput -eq [bool]::TrueString) {
+if ($logScriptOutput) {
     $logging = 'LogScriptOutput'
 }
 $searchMode = 'SearchTopFolderOnly'
-if ($IncludeSubfolders -eq [bool]::TrueString) {
+if ($includeSubfolders) {
     $searchMode = 'SearchAllFolders'
 }
-$variableSubstitutionValue = $VariableSubstitution -eq [bool]::TrueString
-$encoding = $ScriptEncoding.Split("-")[1]
+$encoding = $scriptEncoding.Split("-")[1]
 
-. .\Update-DatabaseWithDbUp.ps1 
-$success = Update-DatabaseWithDbUp -ConnectionString $ConnectionString -ScriptPath $ScriptPath -Journal $journal -JournalSchemaName $JournalSchemaName -JournalTableName $JournalTableName -Filter $ScriptFileFilter -Encoding $encoding -TransactionStrategy $TransactionStrategy -Logging $logging -SearchMode $searchMode -Order $Order -VariableSubstitution $variableSubstitutionValue -VariableSubstitutionPrefix $VariableSubstitutionPrefix
+. "$PSScriptRoot\Update-DatabaseWithDbUp.ps1" 
+$success = Update-DatabaseWithDbUp `
+    -ConnectionString $connectionString `
+    -ScriptPath $scriptPath `
+    -Journal $journal `
+    -JournalSchemaName $journalSchemaName `
+    -JournalTableName $journalTableName `
+    -Filter $scriptFileFilter `
+    -Encoding $encoding `
+    -TransactionStrategy $transactionStrategy `
+    -Logging $logging `
+    -SearchMode $searchMode `
+    -Order $order `
+    -VariableSubstitution $variableSubstitution `
+    -VariableSubstitutionPrefix $variableSubstitutionPrefix
 if (-not $success) {
     exit -1
 }
